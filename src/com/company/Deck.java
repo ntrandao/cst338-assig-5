@@ -37,6 +37,8 @@ public class Deck {
     */
    public void init(int numPacks) {
       // fill up cards array
+      if (numPacks > 6) return; // validate numPacks
+
       topCard = numPacks * PACK_SIZE;
       for (int i = 0; i < numPacks; i++) {
          for (int j = 0; j < PACK_SIZE; j++) {
