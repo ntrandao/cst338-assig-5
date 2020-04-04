@@ -97,6 +97,7 @@ public class Card {
          case 'Q':
          case 'K':
          case 'A':
+         case 'X':
             return true;
          default:
             return false;

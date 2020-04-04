@@ -4,8 +4,8 @@ package com.company;
  * Deck class represents a deck of cards.
  */
 public class Deck {
-   public static final int MAX_CARDS = 312; // 6*52 packs of 52 cards
-   private static int PACK_SIZE = 52;
+   public static final int MAX_CARDS = 336; // 6*56 packs of 56 cards
+   private static int PACK_SIZE = 56;
    private static Card[] masterPack = new Card[PACK_SIZE];
    private Card[] cards;
    private int topCard; // 0 when the deck is empty
@@ -105,7 +105,7 @@ public class Deck {
       }
 
       Card.Suit[] suits = Card.Suit.values();
-      char[] values = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'};
+      char[] values = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'X'};
 
       // fill every value of a suit before moving to the next suit
       for (int i = 0; i < suits.length; i++) {
