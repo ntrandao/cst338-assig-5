@@ -9,6 +9,7 @@ public class Deck {
    private static Card[] masterPack = new Card[PACK_SIZE];
    private Card[] cards;
    private int topCard; // 0 when the deck is empty
+   private int numPacks; // how many card packs are in the deck
 
    /**
     * No argument constructor
@@ -25,6 +26,7 @@ public class Deck {
    Deck(int numPacks) {
       topCard = 0;
       cards = new Card[MAX_CARDS];
+      this.numPacks = numPacks;
 
       allocateMasterPack();
       init(numPacks);
@@ -37,7 +39,7 @@ public class Deck {
     */
    public void init(int numPacks) {
       // fill up cards array
-      if (numPacks > 6) return; // validate numPacks
+      if (numPacks < 1 || numPacks > 6) numPacks = 1; // default if numPacks out of range.
 
       topCard = numPacks * PACK_SIZE;
       for (int i = 0; i < numPacks; i++) {
