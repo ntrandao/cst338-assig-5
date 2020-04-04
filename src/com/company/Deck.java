@@ -72,7 +72,7 @@ public class Deck {
          topCard--;
          return new Card(cards[topCard]);
       } else {
-         return new Card('X', Card.Suit.SPADES);
+         return new Card('1', Card.Suit.SPADES);
       }
    }
 
@@ -92,7 +92,7 @@ public class Deck {
          return new Card(cards[k]);
       }
 
-      return new Card('X', Card.Suit.DIAMONDS);
+      return new Card('1', Card.Suit.DIAMONDS);
    }
 
    /**
