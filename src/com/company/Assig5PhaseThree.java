@@ -47,11 +47,12 @@ public class Assig5PhaseThree {
          myCardTable.getPnlHumanHand().add(humanLabels[i]);
       }
 
-      // and two random cards in the play region (simulating a computer/hum ply)
+      // Play cards from each player
       for (int i = 0; i < NUM_PLAYERS; i++) {
-         playedCardLabels[i] = new JLabel(GUICard.getIcon(LowCardGame.getHand(i).inspectCard(0))); // TODO: TEMP Just display first card for now.
+         // TODO: TEMP Just play first card automatically for now.
+         playedCardLabels[i] = new JLabel(GUICard.getIcon(LowCardGame.getHand(i).playCard(0)));
+         // hmm we need to regenerate labels and such
          myCardTable.getPnlPlayArea().add(playedCardLabels[i]);
-
       }
 
       // Add played card text labels
@@ -60,6 +61,16 @@ public class Assig5PhaseThree {
 
       // show everything to the user
       myCardTable.setVisible(true);
+
+      // visually remove played cards
+      removeLabelAtIndex(myCardTable.getPnlComputerHand(), 0);
+      removeLabelAtIndex(myCardTable.getPnlHumanHand(), 0);
+   }
+
+   private static void removeLabelAtIndex(JPanel panel, int index) {
+      panel.remove(index);
+      panel.revalidate();
+      panel.repaint();
    }
 }
 
