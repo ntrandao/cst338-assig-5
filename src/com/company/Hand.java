@@ -56,6 +56,31 @@ public class Hand {
    }
 
    /**
+    * Play a card from a certain position in hand.
+    *
+    * @param cardIndex Position of Card to play.
+    * @return Card to Play.
+    */
+   public Card playCard(int cardIndex) {
+      if ( numCards == 0 ) {// error
+         //Creates a card that does not work
+         return new Card('1', Card.Suit.SPADES);
+      }
+
+      //Decreases numCards.
+      Card card = myCards[cardIndex];
+
+      numCards--;
+      for(int i = cardIndex; i < numCards; i++) {
+         myCards[i] = myCards[i+1];
+      }
+
+      myCards[numCards] = null;
+
+      return card;
+   }
+
+   /**
     * Diplay the entire hand.
     *
     * @return Hand data as a String.
@@ -91,5 +116,14 @@ public class Hand {
       }
       // Return a card with an error flag
       return new Card('1', Card.Suit.CLUBS);
+   }
+
+   /**
+    * Sort Cards in hand.
+    */
+   public void sort() {
+      if (numCards > 1) { // if 1 or less we don't need to sort
+         Card.arraySort(myCards, MAX_CARDS);
+      }
    }
 }
