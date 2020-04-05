@@ -1,9 +1,65 @@
 package com.company;
 
+import javax.swing.*;
+
 public class Assig5PhaseThree {
+   static int NUM_CARDS_PER_HAND = 7;
+   static int NUM_PLAYERS = 2;
+   static JLabel[] computerLabels = new JLabel[NUM_CARDS_PER_HAND];
+   static JLabel[] humanLabels = new JLabel[NUM_CARDS_PER_HAND];
+   static JLabel[] playedCardLabels = new JLabel[NUM_PLAYERS];
+
+   static int numPacksPerDeck;
+   static int numJokersPerPack;
+   static int numUnusedCardsPerPack;
+   static Card[] unusedCardsPerPack;
+
+   static int COMPUTER_HAND_INDEX = 0;
+   static int HUMAN_HAND_INDEX = 1;
 
    public static void main(String[] args) {
-      // write your code here
+      CardTable myCardTable = new CardTable("CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
+      myCardTable.setSize(800, 600);
+      myCardTable.setLocationRelativeTo(null);
+      myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+      numPacksPerDeck = 1;
+      numJokersPerPack = 2;
+      numUnusedCardsPerPack = 0;
+      unusedCardsPerPack = null;
+
+      CardGameFramework LowCardGame = new CardGameFramework(
+            numPacksPerDeck, numJokersPerPack,
+            numUnusedCardsPerPack, unusedCardsPerPack,
+            NUM_PLAYERS, NUM_CARDS_PER_HAND);
+
+      LowCardGame.deal(); // deal to computer and human
+
+      // CREATE LABELS ----------------------------------------------------
+      for (int i = 0; i < NUM_CARDS_PER_HAND; i++) {
+         computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
+         humanLabels[i] = new JLabel(GUICard.getIcon(LowCardGame.getHand(HUMAN_HAND_INDEX).inspectCard(i)));
+      }
+
+      // ADD LABELS TO PANELS -----------------------------------------
+      for (int i = 0; i < NUM_CARDS_PER_HAND; i++) {
+         myCardTable.getPnlComputerHand().add(computerLabels[i]);
+         myCardTable.getPnlHumanHand().add(humanLabels[i]);
+      }
+
+      // and two random cards in the play region (simulating a computer/hum ply)
+      for (int i = 0; i < NUM_PLAYERS; i++) {
+         playedCardLabels[i] = new JLabel(GUICard.getIcon(LowCardGame.getHand(i).inspectCard(0))); // TODO: TEMP Just display first card for now.
+         myCardTable.getPnlPlayArea().add(playedCardLabels[i]);
+
+      }
+
+      // Add played card text labels
+      myCardTable.getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
+      myCardTable.getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
+
+      // show everything to the user
+      myCardTable.setVisible(true);
    }
 }
 
@@ -152,7 +208,6 @@ class CardGameFramework {
       return hand[playerIndex].playCard(cardIndex);
 
    }
-
 
    boolean takeCard(int playerIndex) {
       // returns false if either argument is bad
