@@ -4,11 +4,12 @@ package com.company;
  * Deck class represents a deck of cards.
  */
 public class Deck {
-   public static final int MAX_CARDS = 312; // 6*52 packs of 52 cards
-   private static int PACK_SIZE = 52;
+   public static final int MAX_CARDS = 336; // 6*56 packs of 56 cards
+   private static int PACK_SIZE = 56;
    private static Card[] masterPack = new Card[PACK_SIZE];
    private Card[] cards;
    private int topCard; // 0 when the deck is empty
+   private int numPacks; // how many card packs are in the deck
 
    /**
     * No argument constructor
@@ -25,6 +26,7 @@ public class Deck {
    Deck(int numPacks) {
       topCard = 0;
       cards = new Card[MAX_CARDS];
+      this.numPacks = numPacks;
 
       allocateMasterPack();
       init(numPacks);
@@ -37,6 +39,8 @@ public class Deck {
     */
    public void init(int numPacks) {
       // fill up cards array
+      if (numPacks < 1 || numPacks > 6) numPacks = 1; // default if numPacks out of range.
+
       topCard = numPacks * PACK_SIZE;
       for (int i = 0; i < numPacks; i++) {
          for (int j = 0; j < PACK_SIZE; j++) {
@@ -68,7 +72,7 @@ public class Deck {
          topCard--;
          return new Card(cards[topCard]);
       } else {
-         return new Card('X', Card.Suit.SPADES);
+         return new Card('1', Card.Suit.SPADES);
       }
    }
 
@@ -77,8 +81,8 @@ public class Deck {
    }
 
    /**
-    * Return a Card with errorFlag = true, if k is out of range.
-    * pre-condition: deck is not empty and k is within range.
+    * Return a Card with errorFlag = true, if k is out of range. pre-condition: deck is not empty and k is within
+    * range.
     *
     * @param k The index of the card to inspect.
     * @return The Card at the index or an illegal Card.
@@ -88,12 +92,11 @@ public class Deck {
          return new Card(cards[k]);
       }
 
-      return new Card('X', Card.Suit.DIAMONDS);
+      return new Card('1', Card.Suit.DIAMONDS);
    }
 
    /**
-    * Fill the masterPack card array. We should only do this once,
-    * regardless of how many Deck objects there are.
+    * Fill the masterPack card array. We should only do this once, regardless of how many Deck objects there are.
     */
    private static void allocateMasterPack() {
       if (masterPack[0] != null) { // return early if we have already executed this setup
@@ -101,7 +104,7 @@ public class Deck {
       }
 
       Card.Suit[] suits = Card.Suit.values();
-      char[] values = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'};
+      char[] values = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'X'};
 
       // fill every value of a suit before moving to the next suit
       for (int i = 0; i < suits.length; i++) {
@@ -109,6 +112,74 @@ public class Deck {
             masterPack[(values.length * i) + j] = new Card(values[j], suits[i]);
          }
       }
+   }
+
+   /**
+    * Sort the Deck.
+    */
+   public void sort() {
+      if (topCard > 1) { // if 1 or less we don't need to sort
+         Card.arraySort(cards, topCard);
+      }
+   }
+
+   /**
+    * Return how many cards are in the Deck.
+    *
+    * @return Number of cards in the Deck.
+    */
+   public int getNumCards() {
+      return topCard;
+   }
+
+   /**
+    * Add a Card to the top of the Deck.
+    *
+    * @param card Card to add.
+    * @return Whether adding the Card was successful.
+    */
+   public boolean addCard(Card card) {
+      int numInstancesFound = 0;
+
+      if (topCard > 0) { // check number of existing instances
+         for (int i = 0; i < topCard; i++) {
+            if (cards[i].equals(card)) numInstancesFound++;
+         }
+
+         if (numInstancesFound == numPacks) return false;
+      }
+
+      cards[topCard] = new Card(card);
+      topCard++;
+
+      return true;
+   }
+
+   /**
+    * Remove a certain card from the deck.
+    *
+    * @param card Card to remove
+    * @return Whether Card was able to be removed
+    */
+   public boolean removeCard(Card card) {
+      if (topCard == 0) return false; // return false is Deck is empty
+
+      boolean foundCard = false;
+
+      for (int i = 0; i < topCard; i++) {
+         if (cards[i].equals(card)) {
+            foundCard = true;
+
+            // swap card with top of deck
+            cards[i] = cards[topCard - 1];
+            cards[topCard - 1] = null;
+            topCard--;
+
+            break;
+         }
+      }
+
+      return foundCard;
    }
 }
 

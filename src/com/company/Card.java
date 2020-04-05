@@ -15,6 +15,8 @@ public class Card {
    private Suit suit;
    private boolean errorFlag; // Whether this Card has an error.
 
+   public static char[] valuRanks = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'X'};
+
    /**
     * No argument constructor
     */
@@ -42,6 +44,31 @@ public class Card {
       set(card.getValue(), card.getSuit());
    }
 
+   private static int getRankIndex(char cardValue) {
+      int i;
+
+      for (i = 0; i < valuRanks.length; i++) {
+         if (new Character(valuRanks[i]).equals(cardValue)) break;
+      }
+
+      return i;
+   }
+
+   public static void arraySort(Card[] cards, int arraySize) {
+      Card temp;
+
+      for (int i = 0; i < arraySize - 1; i++) {
+         for (int j = 0; j < arraySize - i - 1; j++) {
+            if (getRankIndex(cards[j].getValue()) > getRankIndex(cards[j + 1].getValue())) {
+               // swap cards[j+1] and cards[i]
+               temp = cards[j];
+               cards[j] = cards[j + 1];
+               cards[j + 1] = temp;
+            }
+         }
+      }
+   }
+
    /**
     * Check if the given Card object equals this one.
     *
@@ -49,7 +76,7 @@ public class Card {
     * @return Whether the Card objects are equal.
     */
    public boolean equals(Card card) {
-      return card != null && card.getSuit() == suit && card.getValue() == value;
+      return card != null && card.getSuit() == suit && card.getValue() == value && card.getErrorFlag() == errorFlag;
    }
 
    /**
@@ -97,6 +124,7 @@ public class Card {
          case 'Q':
          case 'K':
          case 'A':
+         case 'X':
             return true;
          default:
             return false;
