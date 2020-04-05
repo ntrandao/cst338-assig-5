@@ -88,13 +88,6 @@ public class Assig5PhaseOne {
         FlowLayout layout = new FlowLayout(FlowLayout.CENTER, 5, 20);
         frmMyWindow.setLayout(layout);
 
-        //  DEBUGGING- DELETE AFTER TESTING
-        //  added this section as a test.. couldn't get this to display either
-        JLabel test = new JLabel("test");
-        ImageIcon test1 = new ImageIcon("QH.gif");
-        test.setIcon(test1);
-        frmMyWindow.add(test);
-
         // prepare the image label array
         JLabel[] labels = new JLabel[NUM_CARD_IMAGES];
         for (k = 0; k < NUM_CARD_IMAGES; k++)
