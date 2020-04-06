@@ -6,7 +6,7 @@ public class Assig5PhaseThree {
    static int NUM_CARDS_PER_HAND = 7;
    static int NUM_PLAYERS = 2;
    static JLabel[] computerLabels = new JLabel[NUM_CARDS_PER_HAND];
-   static JLabel[] humanLabels = new JLabel[NUM_CARDS_PER_HAND];
+   static JButton[] humanLabels = new JButton[NUM_CARDS_PER_HAND];
    static JLabel[] playedCardLabels = new JLabel[NUM_PLAYERS];
 
    static int numPacksPerDeck;
@@ -141,12 +141,12 @@ public class Assig5PhaseThree {
 
    private static void renderHands(CardGameFramework LowCardGame, CardTable myCardTable) {
       computerLabels = new JLabel[NUM_CARDS_PER_HAND];
-      humanLabels = new JLabel[NUM_CARDS_PER_HAND];
+      humanLabels = new JButton[NUM_CARDS_PER_HAND];
 
       // CREATE LABELS ----------------------------------------------------
       for (int i = 0; i < LowCardGame.getHand(0).getNumCards(); i++) {
          computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
-         humanLabels[i] = new JLabel(GUICard.getIcon(LowCardGame.getHand(HUMAN_HAND_INDEX).inspectCard(i)));
+         humanLabels[i] = new JButton("", GUICard.getIcon(LowCardGame.getHand(HUMAN_HAND_INDEX).inspectCard(i)));
       }
 
       // ADD LABELS TO PANELS -----------------------------------------
