@@ -32,7 +32,7 @@ public class Assig5PhaseTwo {
          myCardTable.getPnlHumanHand().add(humanLabels[i]);
       }
 
-      // and two random cards in the play region (simulating a computer/hum ply)
+      // add two random cards in the play region (simulating a computer/hum ply)
       for (int i = 0; i < NUM_PLAYERS; i++) {
          playedCardLabels[i] = new JLabel(GUICard.getIcon(generateRandomCard()));
          myCardTable.getPnlPlayArea().add(playedCardLabels[i]);
