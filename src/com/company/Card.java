@@ -44,7 +44,7 @@ public class Card {
       set(card.getValue(), card.getSuit());
    }
 
-   private static int getRankIndex(char cardValue) {
+   public static int getRankIndex(char cardValue) {
       int i;
 
       for (i = 0; i < valuRanks.length; i++) {
