@@ -11,7 +11,7 @@ public class Assig5PhaseOne {
         int index = 0;
         for(int i = 0; i <= 3; i++) {
             for(int j = 0; j <= 13; j++) {
-                String fileName = "images/" + turnIntIntoCardValue(i) + turnIntIntoCardSuit(j) + ".gif";
+                String fileName = "images/" + turnIntIntoCardValue(j) + turnIntIntoCardSuit(i) + ".gif";
                 // DEBUGGING- DELETE AFTER TESTING
                 System.out.println("File Name: " + fileName);
                 icon[index] = new ImageIcon(fileName);
