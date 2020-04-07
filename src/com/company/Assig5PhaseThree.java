@@ -96,9 +96,30 @@ public class Assig5PhaseThree {
          resetForNewRound();
       }
 
-      for (int i = 0; i < cardWinningsPerPlayer.length; i++) { // go through players
-         System.out.println("Player hand index: " + i + " has won " + numWinningsPerPlayer[i] + " cards.");
+      handleEndGame();
+      System.exit(0);
+   }
+
+   /**
+    * Show a dialog with Game Results.
+    */
+   private static void handleEndGame() {
+      String resultText = "";
+
+      if (numWinningsPerPlayer[HUMAN_HAND_INDEX] == numWinningsPerPlayer[COMPUTER_HAND_INDEX]) {
+         resultText = "You tied!";
       }
+      else if (numWinningsPerPlayer[HUMAN_HAND_INDEX] > numWinningsPerPlayer[COMPUTER_HAND_INDEX]) {
+         resultText = "You win!";
+      } else {
+         resultText = "Computer wins!";
+      }
+
+      String displayText =
+            "Game is Over. Final Scores: \n" + "Computer: " + numWinningsPerPlayer[COMPUTER_HAND_INDEX] + " Cards\n"
+            + "You: " + numWinningsPerPlayer[HUMAN_HAND_INDEX] + " Cards\n" + resultText;
+
+      JOptionPane.showMessageDialog(myCardTable, displayText, "Round Results", JOptionPane.PLAIN_MESSAGE);
    }
 
    /**
