@@ -119,8 +119,7 @@ public class Assig5PhaseThree {
 
       // Deal out new cards
       for (int i = 0; i < NUM_PLAYERS; i++) {
-         Card cardDealt = LowCardGame.getCardFromDeck();
-         LowCardGame.getHand(i).takeCard(cardDealt); // replenish hands
+         LowCardGame.takeCard(i); // replenish hand
       }
 
       myCardTable.getPnlHumanHand().removeAll();
@@ -186,7 +185,7 @@ public class Assig5PhaseThree {
 
       // Computer always play first for now and chooses random card from hand.
       int randomCardIndex = (int) (Math.random() * (hand.getNumCards() - 1));
-      Card cardToPlay = hand.playCard(randomCardIndex);
+      Card cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, randomCardIndex);
       playedCardLabels[COMPUTER_HAND_INDEX] = new JLabel(GUICard.getIcon(cardToPlay));
       myCardTable.getPnlPlayArea().add(playedCardLabels[COMPUTER_HAND_INDEX]);
 
@@ -197,7 +196,7 @@ public class Assig5PhaseThree {
       Hand hand = LowCardGame.getHand(HUMAN_HAND_INDEX);
 
       int randomCardIndex = (int) (Math.random() * (hand.getNumCards() - 1));
-      Card cardToPlay = hand.playCard(randomCardIndex);
+      Card cardToPlay = LowCardGame.playCard(HUMAN_HAND_INDEX, randomCardIndex);
       playedCardLabels[HUMAN_HAND_INDEX] = new JLabel(GUICard.getIcon(cardToPlay));
       myCardTable.getPnlPlayArea().add(playedCardLabels[HUMAN_HAND_INDEX]);
 
