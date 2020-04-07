@@ -102,15 +102,14 @@ public class Assig5PhaseThree {
    }
 
    /**
-    * Debugging Method:
-    * Print out each player's Card winnings.
+    * Debugging Method: Print out each player's Card winnings.
     */
    private static void printPlayerWinnings(int playerIndex) {
       Card[] cardWinnings = cardWinningsPerPlayer[playerIndex];
 
-     for (int i = 0; i < numWinningsPerPlayer[playerIndex]; i++) {
-        System.out.println(cardWinnings[i].toString());
-     }
+      for (int i = 0; i < numWinningsPerPlayer[playerIndex]; i++) {
+         System.out.println(cardWinnings[i].toString());
+      }
    }
 
    /**
@@ -150,7 +149,7 @@ public class Assig5PhaseThree {
    /**
     * Calculate and Display Results
     */
-   private static void handleRoundResults(){
+   private static void handleRoundResults() {
       String resultText = "";
       int winnerIndex = 0; // start with index: 0 as winner
       for (int i = 1; i < cardsInPlay.length; i++) {
@@ -159,7 +158,8 @@ public class Assig5PhaseThree {
          if (cardValue < currentLowest) {
             winnerIndex = i;
          } else if (cardValue == currentLowest) {
-            if (cardsInPlay[i].getSuit().ordinal() < cardsInPlay[winnerIndex].getSuit().ordinal()) { // if equal, order on suit
+            if (cardsInPlay[i].getSuit().ordinal() < cardsInPlay[winnerIndex].getSuit().ordinal()) { // if equal,
+               // order on suit
                winnerIndex = i;
             }
          }
@@ -235,7 +235,7 @@ public class Assig5PhaseThree {
       @Override
       public void actionPerformed(ActionEvent e) {
          int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
-         JButton button = (JButton)e.getSource();
+         JButton button = (JButton) e.getSource();
 
          System.out.println(slotNumber);
          // TODO: create new JLabel with temp.getIcon() and set in human play area
