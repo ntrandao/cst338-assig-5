@@ -1,4 +1,10 @@
 package com.company;
+
+/**
+ * Project Members: Ericka Koyama, Holly Stephens, Ngoc Tran Do
+ * CST 338 Software Design Assignment 5 - Low Card Game
+ */
+
 import javax.swing.*;
 import java.awt.*;
 
