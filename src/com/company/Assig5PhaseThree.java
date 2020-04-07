@@ -1,6 +1,8 @@
 package com.company;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 
 public class Assig5PhaseThree {
@@ -163,25 +165,12 @@ public class Assig5PhaseThree {
       humanLabels = new JButton[NUM_CARDS_PER_HAND];
 
       // CREATE LABELS ----------------------------------------------------
-      HashMap<String,JButton> buttonMap= new HashMap<String,JButton>();
       for (int i = 0; i < NUM_CARDS_PER_HAND; i++) {
          computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
          // player hand should be buttons
          JButton playCardButton = new JButton(GUICard.getIcon(LowCardGame.getHand(HUMAN_HAND_INDEX).inspectCard(i)));
          playCardButton.setActionCommand(String.valueOf(i));
-         buttonMap.put(String.valueOf(i), playCardButton);
-         playCardButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-               // get slot number played
-               String slotNumber = e.getActionCommand();
-               System.out.println(slotNumber);
-               JButton temp = buttonMap.get(slotNumber);
-               // TODO: create new JLabel with temp.getIcon() and set in human play area
-               buttonMap.get(slotNumber).setIcon(null);
-               buttonMap.get(slotNumber).setEnabled(false);
-               //System.exit(0);
-            }
-         });
+         playCardButton.addActionListener(new CardButtonListener());
          humanLabels[i] = playCardButton;
       }
 
@@ -213,6 +202,24 @@ public class Assig5PhaseThree {
       myCardTable.getPnlPlayArea().add(playedCardLabels[HUMAN_HAND_INDEX]);
 
       return cardToPlay;
+   }
+
+   /**
+    * Inner button listener class
+    */
+   private static class CardButtonListener implements ActionListener {
+
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
+         JButton button = (JButton)e.getSource();
+
+         System.out.println(slotNumber);
+         // TODO: create new JLabel with temp.getIcon() and set in human play area
+         button.setIcon(null);
+         button.setEnabled(false);
+         //System.exit(0);
+      }
    }
 }
 
