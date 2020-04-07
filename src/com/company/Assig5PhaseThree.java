@@ -6,24 +6,47 @@ import java.util.HashMap;
 public class Assig5PhaseThree {
    static int NUM_CARDS_PER_HAND = 7;
    static int NUM_PLAYERS = 2;
+
+   /**
+    * UI Labels
+    */
    static JLabel[] computerLabels = new JLabel[NUM_CARDS_PER_HAND];
    static JButton[] humanLabels = new JButton[NUM_CARDS_PER_HAND];
    static JLabel[] playedCardLabels = new JLabel[NUM_PLAYERS];
 
+   /**
+    * Game Managers
+    */
+   static CardGameFramework LowCardGame; // CardGameFramework instance
+   static CardTable myCardTable;  // CardTable instance
+
+   /**
+    * CardGameFramework config
+    */
    static int numPacksPerDeck;
    static int numJokersPerPack;
    static int numUnusedCardsPerPack;
    static Card[] unusedCardsPerPack;
 
+   /**
+    * Constants to keep track of Human and Computer hand indexes in CardGameFramework
+    */
    static int COMPUTER_HAND_INDEX = 0;
    static int HUMAN_HAND_INDEX = 1;
 
+   /**
+    * Keep track of winnings
+    */
    static int[] winningsByHandArray = new int[NUM_PLAYERS];
-   static Card[] playedCards = new Card[NUM_PLAYERS];
+
+   /**
+    * Keep track of which cards are in play at any time
+    */
+   static Card[] cardsInPlay = new Card[NUM_PLAYERS];
 
 
    public static void main(String[] args) throws InterruptedException {
-      CardTable myCardTable = new CardTable("CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
+      myCardTable = new CardTable("CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
       myCardTable.setSize(800, 600);
       myCardTable.setLocationRelativeTo(null);
       myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -33,13 +56,13 @@ public class Assig5PhaseThree {
       numUnusedCardsPerPack = 0;
       unusedCardsPerPack = null;
 
-      CardGameFramework LowCardGame = new CardGameFramework(
+      LowCardGame = new CardGameFramework(
             numPacksPerDeck, numJokersPerPack,
             numUnusedCardsPerPack, unusedCardsPerPack,
             NUM_PLAYERS, NUM_CARDS_PER_HAND);
 
       LowCardGame.deal(); // deal to players
-      renderHands(LowCardGame, myCardTable);
+      renderHands();
       // show everything to the user
       myCardTable.setVisible(true);
 
@@ -49,11 +72,11 @@ public class Assig5PhaseThree {
        * Start Playing Game
        */
       while (LowCardGame.getNumCardsRemainingInDeck() >= 0) {
-         playCards(LowCardGame, myCardTable);
+         playCards();
 
          Thread.sleep(500); // Wait a little bit
 
-         handleRoundResults(myCardTable);
+         handleRoundResults();
 
          Thread.sleep(500); // Wait a little bit
 
@@ -64,7 +87,7 @@ public class Assig5PhaseThree {
             break;
          }
 
-         resetForNewRound(LowCardGame, myCardTable);
+         resetForNewRound();
       }
 
       for (int i = 0; i < winningsByHandArray.length; i++) {
@@ -75,16 +98,11 @@ public class Assig5PhaseThree {
    /**
     * Play cards from each hand to playing area
     */
-   private static void playCards(CardGameFramework LowCardGame, CardTable myCardTable) {
-      Hand computerHand = LowCardGame.getHand(COMPUTER_HAND_INDEX);
-      Hand humanHand = LowCardGame.getHand(HUMAN_HAND_INDEX);
-
-      JPanel computerHandPnl = myCardTable.getPnlComputerHand();
-      JPanel humanHandPnl = myCardTable.getPnlHumanHand();
+   private static void playCards() {
       JPanel playArea = myCardTable.getPnlPlayArea();
 
-      playedCards[0] = computerPlayCard(computerHand, computerHandPnl, playArea);
-      playedCards[1] = humanPlayCard(humanHand, humanHandPnl, playArea);
+      cardsInPlay[0] = computerPlayCard();
+      cardsInPlay[1] = humanPlayCard();
 
       playArea.add(new JLabel("Computer", JLabel.CENTER));
       playArea.add(new JLabel("You", JLabel.CENTER));
@@ -94,7 +112,7 @@ public class Assig5PhaseThree {
    /**
     * Reset for next round
     */
-   private static void resetForNewRound(CardGameFramework LowCardGame, CardTable myCardTable) {
+   private static void resetForNewRound() {
       myCardTable.getPnlPlayArea().removeAll();
 
       // Deal out new cards
@@ -106,7 +124,7 @@ public class Assig5PhaseThree {
       myCardTable.getPnlHumanHand().removeAll();
       myCardTable.getPnlComputerHand().removeAll();
 
-      renderHands(LowCardGame, myCardTable);
+      renderHands();
 
       myCardTable.revalidate();
       myCardTable.repaint();
@@ -115,15 +133,15 @@ public class Assig5PhaseThree {
    /**
     * Calculate and Display Results
     */
-   private static void handleRoundResults(CardTable myCardTable){
+   private static void handleRoundResults(){
       int winnerIndex = 0; // start with index: 0 as winner
-      for (int i = 1; i < playedCards.length; i++) {
-         int cardValue = Card.getRankIndex(playedCards[i].getValue());
-         int currentLowest = Card.getRankIndex(playedCards[winnerIndex].getValue());
+      for (int i = 1; i < cardsInPlay.length; i++) {
+         int cardValue = Card.getRankIndex(cardsInPlay[i].getValue());
+         int currentLowest = Card.getRankIndex(cardsInPlay[winnerIndex].getValue());
          if (cardValue < currentLowest) {
             winnerIndex = i;
          } else if (cardValue == currentLowest) {
-            if (playedCards[i].getSuit().ordinal() < playedCards[winnerIndex].getSuit().ordinal()) { // if equal, order on suit
+            if (cardsInPlay[i].getSuit().ordinal() < cardsInPlay[winnerIndex].getSuit().ordinal()) { // if equal, order on suit
                winnerIndex = i;
             }
          }
@@ -140,7 +158,7 @@ public class Assig5PhaseThree {
       myCardTable.getPnlPlayArea().revalidate();
    }
 
-   private static void renderHands(CardGameFramework LowCardGame, CardTable myCardTable) {
+   private static void renderHands() {
       computerLabels = new JLabel[NUM_CARDS_PER_HAND];
       humanLabels = new JButton[NUM_CARDS_PER_HAND];
 
@@ -174,21 +192,25 @@ public class Assig5PhaseThree {
       }
    }
 
-   private static Card computerPlayCard(Hand hand, JPanel handPanel, JPanel playArea) {
+   private static Card computerPlayCard() {
+      Hand hand = LowCardGame.getHand(COMPUTER_HAND_INDEX);
+
       // Computer always play first for now and chooses random card from hand.
       int randomCardIndex = (int) (Math.random() * (hand.getNumCards() - 1));
       Card cardToPlay = hand.playCard(randomCardIndex);
       playedCardLabels[COMPUTER_HAND_INDEX] = new JLabel(GUICard.getIcon(cardToPlay));
-      playArea.add(playedCardLabels[COMPUTER_HAND_INDEX]);
+      myCardTable.getPnlPlayArea().add(playedCardLabels[COMPUTER_HAND_INDEX]);
 
       return cardToPlay;
    }
 
-   private static Card humanPlayCard(Hand hand, JPanel handPanel, JPanel playArea) {
+   private static Card humanPlayCard() {
+      Hand hand = LowCardGame.getHand(HUMAN_HAND_INDEX);
+
       int randomCardIndex = (int) (Math.random() * (hand.getNumCards() - 1));
       Card cardToPlay = hand.playCard(randomCardIndex);
       playedCardLabels[HUMAN_HAND_INDEX] = new JLabel(GUICard.getIcon(cardToPlay));
-      playArea.add(playedCardLabels[HUMAN_HAND_INDEX]);
+      myCardTable.getPnlPlayArea().add(playedCardLabels[HUMAN_HAND_INDEX]);
 
       return cardToPlay;
    }
