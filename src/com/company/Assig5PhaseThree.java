@@ -146,6 +146,7 @@ public class Assig5PhaseThree {
     * Calculate and Display Results
     */
    private static void handleRoundResults(){
+      String resultText = "";
       int winnerIndex = 0; // start with index: 0 as winner
       for (int i = 1; i < cardsInPlay.length; i++) {
          int cardValue = Card.getRankIndex(cardsInPlay[i].getValue());
@@ -166,10 +167,13 @@ public class Assig5PhaseThree {
       numWinningsPerPlayer[winnerIndex] += 2; // increment num of cards won
 
       if (winnerIndex == HUMAN_HAND_INDEX) {
-         myCardTable.getPnlPlayArea().add(new JLabel("You Won"), JLabel.CENTER);
+         resultText = "You Won";
       } else {
-         myCardTable.getPnlPlayArea().add(new JLabel("You Lost"), JLabel.CENTER);
+         resultText = "You Lost";
       }
+
+      JOptionPane.showMessageDialog(myCardTable,
+            resultText, "Round Results",  JOptionPane.PLAIN_MESSAGE); // Display dialog with results
 
       myCardTable.getPnlPlayArea().revalidate();
    }
