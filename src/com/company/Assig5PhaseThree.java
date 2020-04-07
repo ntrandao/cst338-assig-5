@@ -36,15 +36,15 @@ public class Assig5PhaseThree {
    static int HUMAN_HAND_INDEX = 1;
 
    /**
-    * Keep track of winnings
+    * Keep track of winnings in 2D array
     */
-   static int[] winningsByHandArray = new int[NUM_PLAYERS];
+   static Card[][] cardWinningsPerPlayer = new Card[NUM_PLAYERS][Deck.MAX_CARDS];
+   static int[] numWinningsPerPlayer = new int[NUM_PLAYERS]; // so we know index to add cards for each win
 
    /**
     * Keep track of which cards are in play at any time
     */
    static Card[] cardsInPlay = new Card[NUM_PLAYERS];
-
 
    public static void main(String[] args) throws InterruptedException {
       myCardTable = new CardTable("CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
@@ -91,9 +91,21 @@ public class Assig5PhaseThree {
          resetForNewRound();
       }
 
-      for (int i = 0; i < winningsByHandArray.length; i++) {
-         System.out.println("Player hand index: " + i + " has won " + winningsByHandArray[i] + " times.");
+      for (int i = 0; i < cardWinningsPerPlayer.length; i++) { // go through players
+         System.out.println("Player hand index: " + i + " has won " + numWinningsPerPlayer[i] + " cards.");
       }
+   }
+
+   /**
+    * Debugging Method:
+    * Print out each player's Card winnings.
+    */
+   private static void printPlayerWinnings(int playerIndex) {
+      Card[] cardWinnings = cardWinningsPerPlayer[playerIndex];
+
+     for (int i = 0; i < numWinningsPerPlayer[playerIndex]; i++) {
+        System.out.println(cardWinnings[i].toString());
+     }
    }
 
    /**
@@ -148,7 +160,11 @@ public class Assig5PhaseThree {
       }
 
       // save winnings
-      winningsByHandArray[winnerIndex] += 2; // increment 2 for winning card
+      int numCardsWon = numWinningsPerPlayer[winnerIndex];
+      cardWinningsPerPlayer[winnerIndex][numCardsWon] = cardsInPlay[0]; // actually place cards in winnings
+      cardWinningsPerPlayer[winnerIndex][numCardsWon + 1] = cardsInPlay[1];
+      numWinningsPerPlayer[winnerIndex] += 2; // increment num of cards won
+
       if (winnerIndex == HUMAN_HAND_INDEX) {
          myCardTable.getPnlPlayArea().add(new JLabel("You Won"), JLabel.CENTER);
       } else {
