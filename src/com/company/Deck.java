@@ -4,9 +4,9 @@ package com.company;
  * Deck class represents a deck of cards.
  */
 public class Deck {
-   public static final int MAX_CARDS = 336; // 6*56 packs of 56 cards
-   private static int PACK_SIZE = 56; // 52 + 4 Jokers
-   private static Card[] masterPack = new Card[PACK_SIZE];
+   public static final int MAX_CARDS = 336; // 6*56 packs of 56 cards; 52 + 4 Jokers
+   private static int PACK_SIZE = 52;
+   private static Card[] masterPack = new Card[PACK_SIZE + 4]; // adjust for 4 Jokers
    private Card[] cards;
    private int topCard; // 0 when the deck is empty
    private int numPacks; // how many card packs are in the deck
@@ -41,11 +41,10 @@ public class Deck {
       // fill up cards array
       if (numPacks < 1 || numPacks > 6) numPacks = 1; // default if numPacks out of range.
 
-      int packSizeWOJoker = PACK_SIZE - 4;
-      topCard = numPacks * packSizeWOJoker;
+      topCard = numPacks * PACK_SIZE;
       for (int i = 0; i < numPacks; i++) {
-         for (int j = 0; j < packSizeWOJoker; j++) {
-            cards[(packSizeWOJoker * i) + j] = new Card(masterPack[j]);
+         for (int j = 0; j < PACK_SIZE; j++) {
+            cards[(PACK_SIZE * i) + j] = new Card(masterPack[j]);
          }
       }
    }
