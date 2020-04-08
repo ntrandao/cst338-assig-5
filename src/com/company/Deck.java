@@ -4,9 +4,9 @@ package com.company;
  * Deck class represents a deck of cards.
  */
 public class Deck {
-   public static final int MAX_CARDS = 336; // 6*56 packs of 56 cards
-   private static int PACK_SIZE = 56;
-   private static Card[] masterPack = new Card[PACK_SIZE];
+   public static final int MAX_CARDS = 336; // 6*56 packs of 56 cards; 52 + 4 Jokers
+   private static int PACK_SIZE = 52;
+   private static Card[] masterPack = new Card[PACK_SIZE + 4]; // adjust for 4 Jokers
    private Card[] cards;
    private int topCard; // 0 when the deck is empty
    private int numPacks; // how many card packs are in the deck
@@ -55,7 +55,7 @@ public class Deck {
    public void shuffle() {
       // mixes up the cards with the help of the standard random number generator.
       for (int i = 0; i < topCard; i++) {
-         int index = (int) (Math.random() * (PACK_SIZE - 1));
+         int index = (int) (Math.random() * (topCard - 1));
          Card temp = cards[index];
          cards[index] = cards[i];
          cards[i] = temp;
@@ -104,7 +104,7 @@ public class Deck {
       }
 
       Card.Suit[] suits = Card.Suit.values();
-      char[] values = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'X'};
+      char[] values = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'};
 
       // fill every value of a suit before moving to the next suit
       for (int i = 0; i < suits.length; i++) {

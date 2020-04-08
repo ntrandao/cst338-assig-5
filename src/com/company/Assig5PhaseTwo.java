@@ -140,7 +140,7 @@ class GUICard {
       return Card.Suit.values()[index].toString().substring(0, 1);
    }
 
-   private static int valueAsInt(Card card) {
+   public static int valueAsInt(Card card) {
       int i;
 
       for (i = 0; i < Card.valuRanks.length; i++) {
@@ -150,7 +150,7 @@ class GUICard {
       return i;
    }
 
-   private static int suitAsInt(Card card) {
+   public static int suitAsInt(Card card) {
       return card.getSuit().ordinal();
    }
 

@@ -133,7 +133,7 @@ public class Assig5PhaseThree {
       }
    }
 
-   /**
+  /**
     * Play cards from each hand to playing area
     */
    private static void playCards() {
@@ -170,17 +170,17 @@ public class Assig5PhaseThree {
    /**
     * Calculate and Display Results
     */
+
    private static void handleRoundResults() {
       String resultText = "";
       int winnerIndex = 0; // start with index: 0 as winner
       for (int i = 1; i < cardsInPlay.length; i++) {
-         int cardValue = Card.getRankIndex(cardsInPlay[i].getValue());
-         int currentLowest = Card.getRankIndex(cardsInPlay[winnerIndex].getValue());
+         int cardValue = GUICard.valueAsInt(cardsInPlay[i]);
+         int currentLowest = GUICard.valueAsInt(cardsInPlay[winnerIndex]);
          if (cardValue < currentLowest) {
             winnerIndex = i;
          } else if (cardValue == currentLowest) {
-            if (cardsInPlay[i].getSuit().ordinal() < cardsInPlay[winnerIndex].getSuit().ordinal()) { // if equal,
-               // order on suit
+            if (GUICard.suitAsInt(cardsInPlay[i]) < GUICard.suitAsInt(cardsInPlay[winnerIndex])) { // break tie on suit
                winnerIndex = i;
             }
          }
@@ -227,13 +227,26 @@ public class Assig5PhaseThree {
 
    private static Card computerPlayCard() {
       Hand hand = LowCardGame.getHand(COMPUTER_HAND_INDEX);
+      Card cardToPlay = null;
+      hand.sort();  //want to sort out the hand to get 1 card lower than humanCardToPlay
+      if (playedCardLabels[HUMAN_HAND_INDEX] == null) {  //if no display on humanCard, then play at index 0.
+         cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, 0); //which if is sorted then would be lowest card
+      }
+      else {
+         for(int i = hand.getNumCards() - 1; i > 0; i--) { // find highest card that is sufficient to win round
+            if(cardsInPlay[HUMAN_HAND_INDEX].getValue() < hand.inspectCard(i).getValue()) {
+               cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, i);
+               break;
+            }
+         }
+      }
 
-      // Computer always play first for now and chooses random card from hand.
-      int randomCardIndex = (int) (Math.random() * (hand.getNumCards() - 1));
-      Card cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, randomCardIndex);
+      if (cardToPlay == null) { // if still null then computer can't win round, discard highest
+         cardToPlay = hand.playCard(hand.getNumCards() - 1);
+      }
+
       playedCardLabels[COMPUTER_HAND_INDEX] = new JLabel(GUICard.getIcon(cardToPlay));
       myCardTable.getPnlPlayArea().add(playedCardLabels[COMPUTER_HAND_INDEX]);
-
       return cardToPlay;
    }
 
@@ -257,7 +270,7 @@ public class Assig5PhaseThree {
       public void actionPerformed(ActionEvent e) {
          int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
          JButton button = (JButton) e.getSource();
-
+        
          System.out.println(slotNumber);
          // TODO: create new JLabel with temp.getIcon() and set in human play area
          button.setIcon(null);
@@ -283,6 +296,9 @@ class CardGameFramework {
    private Card[] unusedCardsPerPack;   // an array holding the cards not used
    // in the game.  e.g. pinochle does not
    // use cards 2-8 of any suit
+   // booleans to track who goes first each turn
+   private boolean computerWin;
+   private boolean humanWin;
 
    public CardGameFramework(int numPacks, int numJokersPerPack,
                             int numUnusedCardsPerPack, Card[] unusedCardsPerPack,
@@ -319,7 +335,8 @@ class CardGameFramework {
       this.numCardsPerHand = numCardsPerHand;
       for (k = 0; k < numUnusedCardsPerPack; k++)
          this.unusedCardsPerPack[k] = unusedCardsPerPack[k];
-
+      this.humanWin = true;
+      this.computerWin = false;
       // prepare deck and shuffle
       newGame();
    }

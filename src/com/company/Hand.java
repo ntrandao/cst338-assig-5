@@ -123,7 +123,7 @@ public class Hand {
     */
    public void sort() {
       if (numCards > 1) { // if 1 or less we don't need to sort
-         Card.arraySort(myCards, MAX_CARDS);
+         Card.arraySort(myCards, numCards);
       }
    }
 }
