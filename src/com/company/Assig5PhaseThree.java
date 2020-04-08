@@ -227,13 +227,26 @@ public class Assig5PhaseThree {
 
    private static Card computerPlayCard() {
       Hand hand = LowCardGame.getHand(COMPUTER_HAND_INDEX);
+      Card cardToPlay = null;
+      hand.sort();  //want to sort out the hand to get 1 card lower than humanCardToPlay
+      if (playedCardLabels[HUMAN_HAND_INDEX] == null) {  //if no display on humanCard, then play at index 0.
+         cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, 0); //which if is sorted then would be lowest card
+      }
+      else {
+         for(int i = hand.getNumCards() - 1; i > 0; i--) { // find highest card that is sufficient to win round
+            if(cardsInPlay[HUMAN_HAND_INDEX].getValue() < hand.inspectCard(i).getValue()) {
+               cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, i);
+               break;
+            }
+         }
+      }
 
-      // Computer always play first for now and chooses random card from hand.
-      int randomCardIndex = (int) (Math.random() * (hand.getNumCards() - 1));
-      Card cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, randomCardIndex);
+      if (cardToPlay == null) { // if still null then computer can't win round, discard highest
+         cardToPlay = hand.playCard(hand.getNumCards() - 1);
+      }
+
       playedCardLabels[COMPUTER_HAND_INDEX] = new JLabel(GUICard.getIcon(cardToPlay));
       myCardTable.getPnlPlayArea().add(playedCardLabels[COMPUTER_HAND_INDEX]);
-
       return cardToPlay;
    }
 
