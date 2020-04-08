@@ -174,13 +174,12 @@ public class Assig5PhaseThree {
       String resultText = "";
       int winnerIndex = 0; // start with index: 0 as winner
       for (int i = 1; i < cardsInPlay.length; i++) {
-         int cardValue = Card.getRankIndex(cardsInPlay[i].getValue());
-         int currentLowest = Card.getRankIndex(cardsInPlay[winnerIndex].getValue());
+         int cardValue = GUICard.valueAsInt(cardsInPlay[i]);
+         int currentLowest = GUICard.valueAsInt(cardsInPlay[winnerIndex]);
          if (cardValue < currentLowest) {
             winnerIndex = i;
          } else if (cardValue == currentLowest) {
-            if (cardsInPlay[i].getSuit().ordinal() < cardsInPlay[winnerIndex].getSuit().ordinal()) { // if equal,
-               // order on suit
+            if (GUICard.suitAsInt(cardsInPlay[i]) < GUICard.suitAsInt(cardsInPlay[winnerIndex])) { // break tie on suit
                winnerIndex = i;
             }
          }
