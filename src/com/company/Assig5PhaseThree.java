@@ -1,32 +1,31 @@
 package com.company;
-
 /**
  * Project Members: Ericka Koyama, Holly Stephens, Ngoc Tran Do
  * CST 338 Software Design Assignment 5 - Low Card Game
  */
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 public class Assig5PhaseThree {
    static int NUM_CARDS_PER_HAND = 7;
    static int NUM_PLAYERS = 2;
-
+   /**
+    * booleans to track who goes first each turn
+    */
+   static boolean computerWin;
+   static boolean humanWin;
    /**
     * UI Labels
     */
    static JLabel[] computerLabels = new JLabel[NUM_CARDS_PER_HAND];
    static JButton[] humanLabels = new JButton[NUM_CARDS_PER_HAND];
    static JLabel[] playedCardLabels = new JLabel[NUM_PLAYERS];
-
    /**
     * Game Managers
     */
    static CardGameFramework LowCardGame; // CardGameFramework instance
    static CardTable myCardTable;  // CardTable instance
-
    /**
     * CardGameFramework config
     */
@@ -34,85 +33,54 @@ public class Assig5PhaseThree {
    static int numJokersPerPack;
    static int numUnusedCardsPerPack;
    static Card[] unusedCardsPerPack;
-
    /**
     * Constants to keep track of Human and Computer hand indexes in CardGameFramework
     */
    static int COMPUTER_HAND_INDEX = 0;
    static int HUMAN_HAND_INDEX = 1;
-
    /**
     * Keep track of winnings in 2D array
     */
    static Card[][] cardWinningsPerPlayer = new Card[NUM_PLAYERS][Deck.MAX_CARDS];
    static int[] numWinningsPerPlayer = new int[NUM_PLAYERS]; // so we know index to add cards for each win
-
    /**
     * Keep track of which cards are in play at any time
     */
    static Card[] cardsInPlay = new Card[NUM_PLAYERS];
-
-   public static void main(String[] args) throws InterruptedException {
+   public static void main(String[] args) {
       myCardTable = new CardTable("CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
       myCardTable.setSize(800, 600);
       myCardTable.setLocationRelativeTo(null);
       myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
       numPacksPerDeck = 1;
       numJokersPerPack = 2;
       numUnusedCardsPerPack = 0;
       unusedCardsPerPack = null;
-
       LowCardGame = new CardGameFramework(
             numPacksPerDeck, numJokersPerPack,
             numUnusedCardsPerPack, unusedCardsPerPack,
             NUM_PLAYERS, NUM_CARDS_PER_HAND);
-
       LowCardGame.deal(); // deal to players
-
       myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in play area
       myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
       myCardTable.getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
       myCardTable.getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
-
       renderHands();
       // show everything to the user
       myCardTable.setVisible(true);
-
-      Thread.sleep(500); // Wait a little bit
-
+      // game will start with computer playing first
+      computerWin = true;
+      humanWin = false;
       /**
        * Start Playing Game
        */
-      while (LowCardGame.getNumCardsRemainingInDeck() >= 0) {
-         playCards();
-
-         Thread.sleep(500); // Wait a little bit
-
-         handleRoundResults();
-
-         Thread.sleep(500); // Wait a little bit
-
-         System.out.println("Number of cards left in deck: " + LowCardGame.getNumCardsRemainingInDeck());
-
-         if (LowCardGame.getNumCardsRemainingInDeck() < NUM_PLAYERS) {
-            // end game because we won't be able to deal enough cards
-            break;
-         }
-
-         resetForNewRound();
-      }
-
-      handleEndGame();
-      System.exit(0);
+      playCards();
    }
-
    /**
     * Show a dialog with Game Results.
     */
    private static void handleEndGame() {
       String resultText = "";
-
       if (numWinningsPerPlayer[HUMAN_HAND_INDEX] == numWinningsPerPlayer[COMPUTER_HAND_INDEX]) {
          resultText = "You tied!";
       }
@@ -121,33 +89,29 @@ public class Assig5PhaseThree {
       } else {
          resultText = "Computer wins!";
       }
-
       String displayText =
             "Game is Over. Final Scores: \n" + "Computer: " + numWinningsPerPlayer[COMPUTER_HAND_INDEX] + " Cards\n"
-            + "You: " + numWinningsPerPlayer[HUMAN_HAND_INDEX] + " Cards\n" + resultText;
-
+                  + "You: " + numWinningsPerPlayer[HUMAN_HAND_INDEX] + " Cards\n" + resultText;
       JOptionPane.showMessageDialog(myCardTable, displayText, "Round Results", JOptionPane.PLAIN_MESSAGE);
    }
-
    /**
     * Debugging Method: Print out each player's Card winnings.
     */
    private static void printPlayerWinnings(int playerIndex) {
       Card[] cardWinnings = cardWinningsPerPlayer[playerIndex];
-
       for (int i = 0; i < numWinningsPerPlayer[playerIndex]; i++) {
          System.out.println(cardWinnings[i].toString());
       }
    }
-
-  /**
+   /**
     * Play cards from each hand to playing area
     */
    private static void playCards() {
-      cardsInPlay[0] = computerPlayCard();
-      cardsInPlay[1] = humanPlayCard();
+      if(computerWin)
+      {
+         cardsInPlay[0] = computerPlayCard();
+      }
    }
-
    /**
     * Reset for next round
     */
@@ -156,25 +120,28 @@ public class Assig5PhaseThree {
       for (int i = 0; i < playAreaLabels.length; i++) {
          ((JLabel) playAreaLabels[i]).setIcon(null); // set the play area icons to null
       }
-
       // Deal out new cards
       for (int i = 0; i < NUM_PLAYERS; i++) {
          LowCardGame.takeCard(i); // replenish hand
       }
-
       myCardTable.getPnlHumanHand().removeAll();
       myCardTable.getPnlComputerHand().removeAll();
-
+      if(LowCardGame.getNumCardsRemainingInDeck() == 0) NUM_CARDS_PER_HAND--;
       renderHands();
-
       myCardTable.revalidate();
       myCardTable.repaint();
+      // End Game if either player is out of cards
+      if(LowCardGame.getHand(COMPUTER_HAND_INDEX).getNumCards() == 1  || LowCardGame.getHand(HUMAN_HAND_INDEX).getNumCards() == 1) {
+         handleEndGame();
+      }
+      // Otherwise check if computer starts new round
+      else if(computerWin) {
+         cardsInPlay[0] = computerPlayCard();
+      }
    }
-
    /**
     * Calculate and Display Results
     */
-
    private static void handleRoundResults() {
       String resultText = "";
       int winnerIndex = 0; // start with index: 0 as winner
@@ -189,46 +156,44 @@ public class Assig5PhaseThree {
             }
          }
       }
-
       // save winnings
       int numCardsWon = numWinningsPerPlayer[winnerIndex];
       cardWinningsPerPlayer[winnerIndex][numCardsWon] = cardsInPlay[0]; // actually place cards in winnings
       cardWinningsPerPlayer[winnerIndex][numCardsWon + 1] = cardsInPlay[1];
       numWinningsPerPlayer[winnerIndex] += 2; // increment num of cards won
-
       if (winnerIndex == HUMAN_HAND_INDEX) {
+         humanWin = true;
+         computerWin = false;
          resultText = "You Won";
       } else {
+         humanWin = false;
+         computerWin = true;
          resultText = "You Lost";
       }
-
       JOptionPane.showMessageDialog(myCardTable,
             resultText, "Round Results",  JOptionPane.PLAIN_MESSAGE); // Display dialog with results
-
       myCardTable.getPnlPlayArea().revalidate();
    }
-
    private static void renderHands() {
       computerLabels = new JLabel[NUM_CARDS_PER_HAND];
       humanLabels = new JButton[NUM_CARDS_PER_HAND];
-
-      // CREATE LABELS ----------------------------------------------------
-      for (int i = 0; i < NUM_CARDS_PER_HAND; i++) {
+      // CREATE COMP LABELS ----------------------------------------------------
+      for (int i = 0; i < computerLabels.length; i++) {
          computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
+         // ADD COMP LABELS TO PANELS -----------------------------------------
+         myCardTable.getPnlComputerHand().add(computerLabels[i]);
+      }
+      // CREATE HUMAN LABELS ----------------------------------------------------
+      for (int i = 0; i < humanLabels.length; i++) {
          // player hand should be buttons
          JButton playCardButton = new JButton(GUICard.getIcon(LowCardGame.getHand(HUMAN_HAND_INDEX).inspectCard(i)));
          playCardButton.setActionCommand(String.valueOf(i));
          playCardButton.addActionListener(new CardButtonListener());
          humanLabels[i] = playCardButton;
-      }
-
-      // ADD LABELS TO PANELS -----------------------------------------
-      for (int i = 0; i < LowCardGame.getHand(0).getNumCards(); i++) {
-         myCardTable.getPnlComputerHand().add(computerLabels[i]);
+         // ADD HUMAN LABELS TO PANELS -----------------------------------------
          myCardTable.getPnlHumanHand().add(humanLabels[i]);
       }
    }
-
    private static Card computerPlayCard() {
       Hand hand = LowCardGame.getHand(COMPUTER_HAND_INDEX);
       Card cardToPlay = null;
@@ -244,54 +209,45 @@ public class Assig5PhaseThree {
             }
          }
       }
-
       if (cardToPlay == null) { // if still null then computer can't win round, discard highest
          cardToPlay = hand.playCard(hand.getNumCards() - 1);
       }
-
       // update ui
       JLabel playArea = (JLabel) myCardTable.getPnlPlayArea().getComponent(COMPUTER_HAND_INDEX);
       playArea.setIcon(GUICard.getIcon(cardToPlay));
-
       return cardToPlay;
    }
-
-   private static Card humanPlayCard() {
+   private static Card humanPlayCard(int handIndex) {
       Hand hand = LowCardGame.getHand(HUMAN_HAND_INDEX);
-
-      int randomCardIndex = (int) (Math.random() * (hand.getNumCards() - 1));
-      Card cardToPlay = LowCardGame.playCard(HUMAN_HAND_INDEX, randomCardIndex);
-
+      Card cardToPlay = LowCardGame.playCard(HUMAN_HAND_INDEX, handIndex);
       // update ui
       JLabel playArea = (JLabel) myCardTable.getPnlPlayArea().getComponent(HUMAN_HAND_INDEX);
       playArea.setIcon(GUICard.getIcon(cardToPlay));
-
       return cardToPlay;
    }
-
    /**
     * Inner button listener class
     */
    private static class CardButtonListener implements ActionListener {
-
       @Override
       public void actionPerformed(ActionEvent e) {
          int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
-         JButton button = (JButton) e.getSource();
-        
-         System.out.println(slotNumber);
-         // TODO: create new JLabel with temp.getIcon() and set in human play area
+         JButton button = (JButton)e.getSource();
+         cardsInPlay[1] = humanPlayCard(slotNumber);
          button.setIcon(null);
          button.setEnabled(false);
-         //System.exit(0);
+         //human is playing first this round
+         if(humanWin) {
+            cardsInPlay[0] = computerPlayCard();
+         }
+         handleRoundResults();
+         resetForNewRound();
       }
    }
 }
-
 //class CardGameFramework  ----------------------------------------------------
 class CardGameFramework {
    private static final int MAX_PLAYERS = 50;
-
    private int numPlayers;
    private int numPacks;            // # standard 52-card packs per deck
    // ignoring jokers or unused cards
@@ -304,15 +260,10 @@ class CardGameFramework {
    private Card[] unusedCardsPerPack;   // an array holding the cards not used
    // in the game.  e.g. pinochle does not
    // use cards 2-8 of any suit
-   // booleans to track who goes first each turn
-   private boolean computerWin;
-   private boolean humanWin;
-
    public CardGameFramework(int numPacks, int numJokersPerPack,
                             int numUnusedCardsPerPack, Card[] unusedCardsPerPack,
                             int numPlayers, int numCardsPerHand) {
       int k;
-
       // filter bad values
       if (numPacks < 1 || numPacks > 6)
          numPacks = 1;
@@ -327,14 +278,12 @@ class CardGameFramework {
             numCardsPerHand > numPacks * (52 - numUnusedCardsPerPack)
                   / numPlayers)
          numCardsPerHand = numPacks * (52 - numUnusedCardsPerPack) / numPlayers;
-
       // allocate
       this.unusedCardsPerPack = new Card[numUnusedCardsPerPack];
       this.hand = new Hand[numPlayers];
       for (k = 0; k < numPlayers; k++)
          this.hand[k] = new Hand();
       deck = new Deck(numPacks);
-
       // assign to members
       this.numPacks = numPacks;
       this.numJokersPerPack = numJokersPerPack;
@@ -343,67 +292,50 @@ class CardGameFramework {
       this.numCardsPerHand = numCardsPerHand;
       for (k = 0; k < numUnusedCardsPerPack; k++)
          this.unusedCardsPerPack[k] = unusedCardsPerPack[k];
-      this.humanWin = true;
-      this.computerWin = false;
       // prepare deck and shuffle
       newGame();
    }
-
    // constructor overload/default for game like bridge
    public CardGameFramework() {
       this(1, 0, 0, null, 4, 13);
    }
-
    public Hand getHand(int k) {
       // hands start from 0 like arrays
-
       // on error return automatic empty hand
       if (k < 0 || k >= numPlayers)
          return new Hand();
-
       return hand[k];
    }
-
    public Card getCardFromDeck() {
       return deck.dealCard();
    }
-
    public int getNumCardsRemainingInDeck() {
       return deck.getNumCards();
    }
-
    public void newGame() {
       int k, j;
-
       // clear the hands
       for (k = 0; k < numPlayers; k++)
          hand[k].resetHand();
-
       // restock the deck
       deck.init(numPacks);
-
       // remove unused cards
       for (k = 0; k < numUnusedCardsPerPack; k++)
          deck.removeCard(unusedCardsPerPack[k]);
-
       // add jokers
       for (k = 0; k < numPacks; k++)
          for (j = 0; j < numJokersPerPack; j++)
             deck.addCard(new Card('X', Card.Suit.values()[j]));
-
       // shuffle the cards
       deck.shuffle();
    }
-
    public boolean deal() {
       // returns false if not enough cards, but deals what it can
       int k, j;
       boolean enoughCards;
-
       // clear all hands
       for (j = 0; j < numPlayers; j++)
          hand[j].resetHand();
-
       enoughCards = true;
       for (k = 0; k < numCardsPerHand && enoughCards; k++) {
          for (j = 0; j < numPlayers; j++)
@@ -414,17 +346,13 @@ class CardGameFramework {
                break;
             }
       }
-
       return enoughCards;
    }
-
    void sortHands() {
       int k;
-
       for (k = 0; k < numPlayers; k++)
          hand[k].sort();
    }
-
    Card playCard(int playerIndex, int cardIndex) {
       // returns bad card if either argument is bad
       if (playerIndex < 0 || playerIndex > numPlayers - 1 ||
@@ -432,22 +360,16 @@ class CardGameFramework {
          //Creates a card that does not work
          return new Card('M', Card.Suit.SPADES);
       }
-
       // return the card played
       return hand[playerIndex].playCard(cardIndex);
-
    }
-
    boolean takeCard(int playerIndex) {
       // returns false if either argument is bad
       if (playerIndex < 0 || playerIndex > numPlayers - 1)
          return false;
-
       // Are there enough Cards?
       if (deck.getNumCards() <= 0)
          return false;
-
       return hand[playerIndex].takeCard(deck.dealCard());
    }
-
 }
