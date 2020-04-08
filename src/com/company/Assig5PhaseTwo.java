@@ -10,7 +10,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 /**
- * Main Phase 2 Client
+ * Phase 2 Client
  */
 public class Assig5PhaseTwo {
    static int NUM_CARDS_PER_HAND = 7;
@@ -95,6 +95,9 @@ class CardTable extends JFrame {
       return pnlPlayArea;
    }
 
+   /**
+    * Helper method to setup UI panels.
+    */
    private void setUpPanels() {
       pnlComputerHand = new JPanel(new GridLayout(1, numCardsPerHand));
       pnlHumanHand = new JPanel(new GridLayout(1, numCardsPerHand));
@@ -119,7 +122,7 @@ class GUICard {
    private static boolean iconsLoaded = false;
 
    static void loadCardIcons() {
-      if (iconsLoaded) return;
+      if (iconsLoaded) return; // only load icons once
 
       for (int i = 0; i < iconCards.length; i++) {
          for (int j = 0; j < iconCards[i].length; j++) {
@@ -132,14 +135,29 @@ class GUICard {
       iconsLoaded = true;
    }
 
+   /**
+    * Helper method to convert from IconCard array indexes to card values.
+    * @param index
+    * @return
+    */
    static char indexAsRank(int index) {
       return Card.valuRanks[index];
    }
 
+   /**
+    * Helper method to convert from IconCard array indexes to card suits.
+    * @param index
+    * @return
+    */
    private static String indexAsSuit(int index) {
       return Card.Suit.values()[index].toString().substring(0, 1);
    }
 
+   /**
+    * Get Card value as an integer.
+    * @param card
+    * @return
+    */
    public static int valueAsInt(Card card) {
       int i;
 
@@ -150,10 +168,20 @@ class GUICard {
       return i;
    }
 
+   /**
+    * Return card suit as an integer.
+    * @param card
+    * @return
+    */
    public static int suitAsInt(Card card) {
       return card.getSuit().ordinal();
    }
 
+   /**
+    * Retrieve Icon representing given card.
+    * @param card The card to get an Icon for.
+    * @return     Icon representation of given card.
+    */
    public static Icon getIcon(Card card) {
       loadCardIcons();
 
