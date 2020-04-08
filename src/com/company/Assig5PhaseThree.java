@@ -6,6 +6,7 @@ package com.company;
  */
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -68,6 +69,12 @@ public class Assig5PhaseThree {
             NUM_PLAYERS, NUM_CARDS_PER_HAND);
 
       LowCardGame.deal(); // deal to players
+
+      myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in play area
+      myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
+      myCardTable.getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
+      myCardTable.getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
+
       renderHands();
       // show everything to the user
       myCardTable.setVisible(true);
@@ -137,21 +144,18 @@ public class Assig5PhaseThree {
     * Play cards from each hand to playing area
     */
    private static void playCards() {
-      JPanel playArea = myCardTable.getPnlPlayArea();
-
       cardsInPlay[0] = computerPlayCard();
       cardsInPlay[1] = humanPlayCard();
-
-      playArea.add(new JLabel("Computer", JLabel.CENTER));
-      playArea.add(new JLabel("You", JLabel.CENTER));
-      playArea.revalidate();
    }
 
    /**
     * Reset for next round
     */
    private static void resetForNewRound() {
-      myCardTable.getPnlPlayArea().removeAll();
+      Component[] playAreaLabels = myCardTable.getPnlPlayArea().getComponents();
+      for (int i = 0; i < playAreaLabels.length; i++) {
+         ((JLabel) playAreaLabels[i]).setIcon(null); // set the play area icons to null
+      }
 
       // Deal out new cards
       for (int i = 0; i < NUM_PLAYERS; i++) {
@@ -245,8 +249,10 @@ public class Assig5PhaseThree {
          cardToPlay = hand.playCard(hand.getNumCards() - 1);
       }
 
-      playedCardLabels[COMPUTER_HAND_INDEX] = new JLabel(GUICard.getIcon(cardToPlay));
-      myCardTable.getPnlPlayArea().add(playedCardLabels[COMPUTER_HAND_INDEX]);
+      // update ui
+      JLabel playArea = (JLabel) myCardTable.getPnlPlayArea().getComponent(COMPUTER_HAND_INDEX);
+      playArea.setIcon(GUICard.getIcon(cardToPlay));
+
       return cardToPlay;
    }
 
@@ -255,8 +261,10 @@ public class Assig5PhaseThree {
 
       int randomCardIndex = (int) (Math.random() * (hand.getNumCards() - 1));
       Card cardToPlay = LowCardGame.playCard(HUMAN_HAND_INDEX, randomCardIndex);
-      playedCardLabels[HUMAN_HAND_INDEX] = new JLabel(GUICard.getIcon(cardToPlay));
-      myCardTable.getPnlPlayArea().add(playedCardLabels[HUMAN_HAND_INDEX]);
+
+      // update ui
+      JLabel playArea = (JLabel) myCardTable.getPnlPlayArea().getComponent(HUMAN_HAND_INDEX);
+      playArea.setIcon(GUICard.getIcon(cardToPlay));
 
       return cardToPlay;
    }
