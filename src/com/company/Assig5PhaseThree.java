@@ -133,7 +133,7 @@ public class Assig5PhaseThree {
       }
    }
 
-   /**
+  /**
     * Play cards from each hand to playing area
     */
    private static void playCards() {
@@ -170,6 +170,7 @@ public class Assig5PhaseThree {
    /**
     * Calculate and Display Results
     */
+
    private static void handleRoundResults() {
       String resultText = "";
       int winnerIndex = 0; // start with index: 0 as winner
@@ -269,7 +270,7 @@ public class Assig5PhaseThree {
       public void actionPerformed(ActionEvent e) {
          int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
          JButton button = (JButton) e.getSource();
-
+        
          System.out.println(slotNumber);
          // TODO: create new JLabel with temp.getIcon() and set in human play area
          button.setIcon(null);
@@ -295,6 +296,9 @@ class CardGameFramework {
    private Card[] unusedCardsPerPack;   // an array holding the cards not used
    // in the game.  e.g. pinochle does not
    // use cards 2-8 of any suit
+   // booleans to track who goes first each turn
+   private boolean computerWin;
+   private boolean humanWin;
 
    public CardGameFramework(int numPacks, int numJokersPerPack,
                             int numUnusedCardsPerPack, Card[] unusedCardsPerPack,
@@ -331,7 +335,8 @@ class CardGameFramework {
       this.numCardsPerHand = numCardsPerHand;
       for (k = 0; k < numUnusedCardsPerPack; k++)
          this.unusedCardsPerPack[k] = unusedCardsPerPack[k];
-
+      this.humanWin = true;
+      this.computerWin = false;
       // prepare deck and shuffle
       newGame();
    }
