@@ -5,7 +5,7 @@ package com.company;
  */
 public class Deck {
    public static final int MAX_CARDS = 336; // 6*56 packs of 56 cards
-   private static int PACK_SIZE = 56;
+   private static int PACK_SIZE = 56; // 52 + 4 Jokers
    private static Card[] masterPack = new Card[PACK_SIZE];
    private Card[] cards;
    private int topCard; // 0 when the deck is empty
@@ -41,10 +41,11 @@ public class Deck {
       // fill up cards array
       if (numPacks < 1 || numPacks > 6) numPacks = 1; // default if numPacks out of range.
 
-      topCard = numPacks * PACK_SIZE;
+      int packSizeWOJoker = PACK_SIZE - 4;
+      topCard = numPacks * packSizeWOJoker;
       for (int i = 0; i < numPacks; i++) {
-         for (int j = 0; j < PACK_SIZE; j++) {
-            cards[(PACK_SIZE * i) + j] = new Card(masterPack[j]);
+         for (int j = 0; j < packSizeWOJoker; j++) {
+            cards[(packSizeWOJoker * i) + j] = new Card(masterPack[j]);
          }
       }
    }
@@ -55,7 +56,7 @@ public class Deck {
    public void shuffle() {
       // mixes up the cards with the help of the standard random number generator.
       for (int i = 0; i < topCard; i++) {
-         int index = (int) (Math.random() * (PACK_SIZE - 1));
+         int index = (int) (Math.random() * (topCard - 1));
          Card temp = cards[index];
          cards[index] = cards[i];
          cards[i] = temp;
@@ -104,7 +105,7 @@ public class Deck {
       }
 
       Card.Suit[] suits = Card.Suit.values();
-      char[] values = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'X'};
+      char[] values = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'};
 
       // fill every value of a suit before moving to the next suit
       for (int i = 0; i < suits.length; i++) {
