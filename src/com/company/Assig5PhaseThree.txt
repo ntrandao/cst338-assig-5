@@ -1,0 +1,989 @@
+/**
+ * Project Members: Ericka Koyama, Holly Stephens, Ngoc Tran Do
+ * CST 338 Software Design Assignment 5 - Low Card Game
+ */
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class Assig5PhaseThree {
+    static int NUM_CARDS_PER_HAND = 7;
+    static int NUM_PLAYERS = 2;
+    /**
+     * booleans to track who goes first each turn
+     */
+    static boolean computerWin;
+    static boolean humanWin;
+    /**
+     * UI Labels
+     */
+    static JLabel[] computerLabels = new JLabel[NUM_CARDS_PER_HAND];
+    static JButton[] humanLabels = new JButton[NUM_CARDS_PER_HAND];
+    static JLabel[] playedCardLabels = new JLabel[NUM_PLAYERS];
+    /**
+     * Game Managers
+     */
+    static CardGameFramework LowCardGame; // CardGameFramework instance
+    static CardTable myCardTable;  // CardTable instance
+    /**
+     * CardGameFramework config
+     */
+    static int numPacksPerDeck;
+    static int numJokersPerPack;
+    static int numUnusedCardsPerPack;
+    static Card[] unusedCardsPerPack;
+    /**
+     * Constants to keep track of Human and Computer hand indexes in CardGameFramework
+     */
+    static int COMPUTER_HAND_INDEX = 0;
+    static int HUMAN_HAND_INDEX = 1;
+    /**
+     * Keep track of winnings in 2D array
+     */
+    static Card[][] cardWinningsPerPlayer = new Card[NUM_PLAYERS][Deck.MAX_CARDS];
+    static int[] numWinningsPerPlayer = new int[NUM_PLAYERS]; // so we know index to add cards for each win
+    /**
+     * Keep track of which cards are in play at any time
+     */
+    static Card[] cardsInPlay = new Card[NUM_PLAYERS];
+    public static void main(String[] args) {
+        myCardTable = new CardTable("CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
+        myCardTable.setSize(800, 600);
+        myCardTable.setLocationRelativeTo(null);
+        myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        numPacksPerDeck = 1;
+        numJokersPerPack = 2;
+        numUnusedCardsPerPack = 0;
+        unusedCardsPerPack = null;
+        LowCardGame = new CardGameFramework(
+              numPacksPerDeck, numJokersPerPack,
+              numUnusedCardsPerPack, unusedCardsPerPack,
+              NUM_PLAYERS, NUM_CARDS_PER_HAND);
+        LowCardGame.deal(); // deal to players
+        myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in play area
+        myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
+        myCardTable.getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
+        myCardTable.getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
+        renderHands();
+        // show everything to the user
+        myCardTable.setVisible(true);
+        // game will start with computer playing first
+        computerWin = true;
+        humanWin = false;
+        /**
+         * Start Playing Game
+         */
+        playCards();
+    }
+    /**
+     * Show a dialog with Game Results.
+     */
+    private static void handleEndGame() {
+        String resultText = "";
+        if (numWinningsPerPlayer[HUMAN_HAND_INDEX] == numWinningsPerPlayer[COMPUTER_HAND_INDEX]) {
+            resultText = "You tied!";
+        }
+        else if (numWinningsPerPlayer[HUMAN_HAND_INDEX] > numWinningsPerPlayer[COMPUTER_HAND_INDEX]) {
+            resultText = "You win!";
+        } else {
+            resultText = "Computer wins!";
+        }
+        String displayText =
+              "Game is Over. Final Scores: \n" + "Computer: " + numWinningsPerPlayer[COMPUTER_HAND_INDEX] + " Cards\n"
+                    + "You: " + numWinningsPerPlayer[HUMAN_HAND_INDEX] + " Cards\n" + resultText;
+        JOptionPane.showMessageDialog(myCardTable, displayText, "Round Results", JOptionPane.PLAIN_MESSAGE);
+    }
+    /**
+     * Debugging Method: Print out each player's Card winnings.
+     */
+    private static void printPlayerWinnings(int playerIndex) {
+        Card[] cardWinnings = cardWinningsPerPlayer[playerIndex];
+        for (int i = 0; i < numWinningsPerPlayer[playerIndex]; i++) {
+            System.out.println(cardWinnings[i].toString());
+        }
+    }
+    /**
+     * Play cards from each hand to playing area
+     */
+    private static void playCards() {
+        if(computerWin)
+        {
+            cardsInPlay[0] = computerPlayCard();
+        }
+    }
+    /**
+     * Reset for next round
+     */
+    private static void resetForNewRound() {
+        Component[] playAreaLabels = myCardTable.getPnlPlayArea().getComponents();
+        for (int i = 0; i < playAreaLabels.length; i++) {
+            ((JLabel) playAreaLabels[i]).setIcon(null); // set the play area icons to null
+        }
+        // Deal out new cards
+        for (int i = 0; i < NUM_PLAYERS; i++) {
+            LowCardGame.takeCard(i); // replenish hand
+        }
+        myCardTable.getPnlHumanHand().removeAll();
+        myCardTable.getPnlComputerHand().removeAll();
+        if(LowCardGame.getNumCardsRemainingInDeck() == 0) NUM_CARDS_PER_HAND--;
+        renderHands();
+        myCardTable.revalidate();
+        myCardTable.repaint();
+        // End Game if either player is out of cards
+        if(LowCardGame.getHand(COMPUTER_HAND_INDEX).getNumCards() == 1  || LowCardGame.getHand(HUMAN_HAND_INDEX).getNumCards() == 1) {
+            handleEndGame();
+        }
+        // Otherwise check if computer starts new round
+        else if(computerWin) {
+            cardsInPlay[0] = computerPlayCard();
+        }
+    }
+    /**
+     * Calculate and Display Results
+     */
+    private static void handleRoundResults() {
+        String resultText = "";
+        int winnerIndex = 0; // start with index: 0 as winner
+        for (int i = 1; i < cardsInPlay.length; i++) {
+            int cardValue = GUICard.valueAsInt(cardsInPlay[i]);
+            int currentLowest = GUICard.valueAsInt(cardsInPlay[winnerIndex]);
+            if (cardValue < currentLowest) {
+                winnerIndex = i;
+            } else if (cardValue == currentLowest) {
+                if (GUICard.suitAsInt(cardsInPlay[i]) < GUICard.suitAsInt(cardsInPlay[winnerIndex])) { // break tie on suit
+                    winnerIndex = i;
+                }
+            }
+        }
+        // save winnings
+        int numCardsWon = numWinningsPerPlayer[winnerIndex];
+        cardWinningsPerPlayer[winnerIndex][numCardsWon] = cardsInPlay[0]; // actually place cards in winnings
+        cardWinningsPerPlayer[winnerIndex][numCardsWon + 1] = cardsInPlay[1];
+        numWinningsPerPlayer[winnerIndex] += 2; // increment num of cards won
+        if (winnerIndex == HUMAN_HAND_INDEX) {
+            humanWin = true;
+            computerWin = false;
+            resultText = "You Won";
+        } else {
+            humanWin = false;
+            computerWin = true;
+            resultText = "You Lost";
+        }
+        JOptionPane.showMessageDialog(myCardTable,
+              resultText, "Round Results",  JOptionPane.PLAIN_MESSAGE); // Display dialog with results
+        myCardTable.getPnlPlayArea().revalidate();
+    }
+    private static void renderHands() {
+        computerLabels = new JLabel[NUM_CARDS_PER_HAND];
+        humanLabels = new JButton[NUM_CARDS_PER_HAND];
+        // CREATE COMP LABELS ----------------------------------------------------
+        for (int i = 0; i < computerLabels.length; i++) {
+            computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
+            // ADD COMP LABELS TO PANELS -----------------------------------------
+            myCardTable.getPnlComputerHand().add(computerLabels[i]);
+        }
+        // CREATE HUMAN LABELS ----------------------------------------------------
+        for (int i = 0; i < humanLabels.length; i++) {
+            // player hand should be buttons
+            JButton playCardButton = new JButton(GUICard.getIcon(LowCardGame.getHand(HUMAN_HAND_INDEX).inspectCard(i)));
+            playCardButton.setActionCommand(String.valueOf(i));
+            playCardButton.addActionListener(new CardButtonListener());
+            humanLabels[i] = playCardButton;
+            // ADD HUMAN LABELS TO PANELS -----------------------------------------
+            myCardTable.getPnlHumanHand().add(humanLabels[i]);
+        }
+    }
+    private static Card computerPlayCard() {
+        Hand hand = LowCardGame.getHand(COMPUTER_HAND_INDEX);
+        Card cardToPlay = null;
+        hand.sort();  //want to sort out the hand to get 1 card lower than humanCardToPlay
+        if (playedCardLabels[HUMAN_HAND_INDEX] == null) {  //if no display on humanCard, then play at index 0.
+            cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, 0); //which if is sorted then would be lowest card
+        }
+        else {
+            for(int i = hand.getNumCards() - 1; i > 0; i--) { // find highest card that is sufficient to win round
+                if(cardsInPlay[HUMAN_HAND_INDEX].getValue() < hand.inspectCard(i).getValue()) {
+                    cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, i);
+                    break;
+                }
+            }
+        }
+        if (cardToPlay == null) { // if still null then computer can't win round, discard highest
+            cardToPlay = hand.playCard(hand.getNumCards() - 1);
+        }
+        // update ui
+        JLabel playArea = (JLabel) myCardTable.getPnlPlayArea().getComponent(COMPUTER_HAND_INDEX);
+        playArea.setIcon(GUICard.getIcon(cardToPlay));
+        return cardToPlay;
+    }
+    private static Card humanPlayCard(int handIndex) {
+        Hand hand = LowCardGame.getHand(HUMAN_HAND_INDEX);
+        Card cardToPlay = LowCardGame.playCard(HUMAN_HAND_INDEX, handIndex);
+        // update ui
+        JLabel playArea = (JLabel) myCardTable.getPnlPlayArea().getComponent(HUMAN_HAND_INDEX);
+        playArea.setIcon(GUICard.getIcon(cardToPlay));
+        return cardToPlay;
+    }
+    /**
+     * Inner button listener class
+     */
+    private static class CardButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
+            JButton button = (JButton)e.getSource();
+            cardsInPlay[1] = humanPlayCard(slotNumber);
+            button.setIcon(null);
+            button.setEnabled(false);
+            //human is playing first this round
+            if(humanWin) {
+                cardsInPlay[0] = computerPlayCard();
+            }
+            handleRoundResults();
+            resetForNewRound();
+        }
+    }
+}
+//class CardGameFramework  ----------------------------------------------------
+class CardGameFramework {
+    private static final int MAX_PLAYERS = 50;
+    private int numPlayers;
+    private int numPacks;            // # standard 52-card packs per deck
+    // ignoring jokers or unused cards
+    private int numJokersPerPack;    // if 2 per pack & 3 packs per deck, get 6
+    private int numUnusedCardsPerPack;  // # cards removed from each pack
+    private int numCardsPerHand;        // # cards to deal each player
+    private Deck deck;               // holds the initial full deck and gets
+    // smaller (usually) during play
+    private Hand[] hand;             // one Hand for each player
+    private Card[] unusedCardsPerPack;   // an array holding the cards not used
+    // in the game.  e.g. pinochle does not
+    // use cards 2-8 of any suit
+    public CardGameFramework(int numPacks, int numJokersPerPack,
+                             int numUnusedCardsPerPack, Card[] unusedCardsPerPack,
+                             int numPlayers, int numCardsPerHand) {
+        int k;
+        // filter bad values
+        if (numPacks < 1 || numPacks > 6)
+            numPacks = 1;
+        if (numJokersPerPack < 0 || numJokersPerPack > 4)
+            numJokersPerPack = 0;
+        if (numUnusedCardsPerPack < 0 || numUnusedCardsPerPack > 50) //  > 1 card
+            numUnusedCardsPerPack = 0;
+        if (numPlayers < 1 || numPlayers > MAX_PLAYERS)
+            numPlayers = 4;
+        // one of many ways to assure at least one full deal to all players
+        if (numCardsPerHand < 1 ||
+              numCardsPerHand > numPacks * (52 - numUnusedCardsPerPack)
+                    / numPlayers)
+            numCardsPerHand = numPacks * (52 - numUnusedCardsPerPack) / numPlayers;
+        // allocate
+        this.unusedCardsPerPack = new Card[numUnusedCardsPerPack];
+        this.hand = new Hand[numPlayers];
+        for (k = 0; k < numPlayers; k++)
+            this.hand[k] = new Hand();
+        deck = new Deck(numPacks);
+        // assign to members
+        this.numPacks = numPacks;
+        this.numJokersPerPack = numJokersPerPack;
+        this.numUnusedCardsPerPack = numUnusedCardsPerPack;
+        this.numPlayers = numPlayers;
+        this.numCardsPerHand = numCardsPerHand;
+        for (k = 0; k < numUnusedCardsPerPack; k++)
+            this.unusedCardsPerPack[k] = unusedCardsPerPack[k];
+        // prepare deck and shuffle
+        newGame();
+    }
+    // constructor overload/default for game like bridge
+    public CardGameFramework() {
+        this(1, 0, 0, null, 4, 13);
+    }
+    public Hand getHand(int k) {
+        // hands start from 0 like arrays
+        // on error return automatic empty hand
+        if (k < 0 || k >= numPlayers)
+            return new Hand();
+        return hand[k];
+    }
+    public Card getCardFromDeck() {
+        return deck.dealCard();
+    }
+    public int getNumCardsRemainingInDeck() {
+        return deck.getNumCards();
+    }
+    public void newGame() {
+        int k, j;
+        // clear the hands
+        for (k = 0; k < numPlayers; k++)
+            hand[k].resetHand();
+        // restock the deck
+        deck.init(numPacks);
+        // remove unused cards
+        for (k = 0; k < numUnusedCardsPerPack; k++)
+            deck.removeCard(unusedCardsPerPack[k]);
+        // add jokers
+        for (k = 0; k < numPacks; k++)
+            for (j = 0; j < numJokersPerPack; j++)
+                deck.addCard(new Card('X', Card.Suit.values()[j]));
+        // shuffle the cards
+        deck.shuffle();
+    }
+    public boolean deal() {
+        // returns false if not enough cards, but deals what it can
+        int k, j;
+        boolean enoughCards;
+        // clear all hands
+        for (j = 0; j < numPlayers; j++)
+            hand[j].resetHand();
+        enoughCards = true;
+        for (k = 0; k < numCardsPerHand && enoughCards; k++) {
+            for (j = 0; j < numPlayers; j++)
+                if (deck.getNumCards() > 0)
+                    hand[j].takeCard(deck.dealCard());
+                else {
+                    enoughCards = false;
+                    break;
+                }
+        }
+        return enoughCards;
+    }
+    void sortHands() {
+        int k;
+        for (k = 0; k < numPlayers; k++)
+            hand[k].sort();
+    }
+    Card playCard(int playerIndex, int cardIndex) {
+        // returns bad card if either argument is bad
+        if (playerIndex < 0 || playerIndex > numPlayers - 1 ||
+              cardIndex < 0 || cardIndex > numCardsPerHand - 1) {
+            //Creates a card that does not work
+            return new Card('M', Card.Suit.SPADES);
+        }
+        // return the card played
+        return hand[playerIndex].playCard(cardIndex);
+    }
+    boolean takeCard(int playerIndex) {
+        // returns false if either argument is bad
+        if (playerIndex < 0 || playerIndex > numPlayers - 1)
+            return false;
+        // Are there enough Cards?
+        if (deck.getNumCards() <= 0)
+            return false;
+        return hand[playerIndex].takeCard(deck.dealCard());
+    }
+}
+
+
+/**
+ * CardTable is designed to display cards in player hands and common play area.
+ */
+class CardTable extends JFrame {
+    static int MAX_CARDS_PER_HAND = 56;
+    static int MAX_PLAYERS = 2; // for now, we only allow 2 person game
+
+    private int numCardsPerHand;
+    private int numPlayers;
+
+    public JPanel pnlComputerHand, pnlHumanHand, pnlPlayArea;
+
+    CardTable(String title, int numCardsPerHand, int numPlayers) {
+        super(title);
+
+        setLayout(new BorderLayout(10, 10));
+
+        this.numCardsPerHand = numCardsPerHand > 0 && numCardsPerHand <= MAX_CARDS_PER_HAND ? numCardsPerHand :
+              MAX_CARDS_PER_HAND;
+        this.numPlayers = numPlayers > 0 && numPlayers <= MAX_PLAYERS ? numPlayers : MAX_PLAYERS;
+
+        setUpPanels();
+    }
+
+    public JPanel getPnlComputerHand() {
+        return pnlComputerHand;
+    }
+
+    public JPanel getPnlHumanHand() {
+        return pnlHumanHand;
+    }
+
+    public JPanel getPnlPlayArea() {
+        return pnlPlayArea;
+    }
+
+    /**
+     * Helper method to setup UI panels.
+     */
+    private void setUpPanels() {
+        pnlComputerHand = new JPanel(new GridLayout(1, numCardsPerHand));
+        pnlHumanHand = new JPanel(new GridLayout(1, numCardsPerHand));
+        pnlPlayArea = new JPanel(new GridLayout(2, numPlayers));
+
+        pnlComputerHand.setBorder(new TitledBorder("Computer Hand"));
+        pnlHumanHand.setBorder(new TitledBorder("Human Hand"));
+        pnlPlayArea.setBorder(new TitledBorder("Playing Area"));
+
+        add(pnlComputerHand, BorderLayout.NORTH);
+        add(pnlHumanHand, BorderLayout.SOUTH);
+        add(pnlPlayArea, BorderLayout.CENTER);
+    }
+}
+
+
+/**
+ * Class GUICard is designed to hold and return graphics for cards.
+ */
+class GUICard {
+    private static Icon[][] iconCards = new ImageIcon[14][4]; // 14 = A thru K + joker
+    private static Icon iconBack = new ImageIcon("images/BK.gif");
+    private static boolean iconsLoaded = false;
+
+    static void loadCardIcons() {
+        if (iconsLoaded) return; // only load icons once
+
+        for (int i = 0; i < iconCards.length; i++) {
+            for (int j = 0; j < iconCards[i].length; j++) {
+                // i and j are value and suit indexes
+                String filename = indexAsRank(i) + indexAsSuit(j) + ".gif";
+                iconCards[i][j] = new ImageIcon("images/" + filename);
+            }
+        }
+
+        iconsLoaded = true;
+    }
+
+    /**
+     * Helper method to convert from IconCard array indexes to card values.
+     * @param index
+     * @return
+     */
+    static char indexAsRank(int index) {
+        return Card.valuRanks[index];
+    }
+
+    /**
+     * Helper method to convert from IconCard array indexes to card suits.
+     * @param index
+     * @return
+     */
+    private static String indexAsSuit(int index) {
+        return Card.Suit.values()[index].toString().substring(0, 1);
+    }
+
+    /**
+     * Get Card value as an integer.
+     * @param card
+     * @return
+     */
+    public static int valueAsInt(Card card) {
+        int i;
+
+        for (i = 0; i < Card.valuRanks.length; i++) {
+            if (Card.valuRanks[i] == card.getValue()) break;
+        }
+
+        return i;
+    }
+
+    /**
+     * Return card suit as an integer.
+     * @param card
+     * @return
+     */
+    public static int suitAsInt(Card card) {
+        return card.getSuit().ordinal();
+    }
+
+    /**
+     * Retrieve Icon representing given card.
+     * @param card The card to get an Icon for.
+     * @return     Icon representation of given card.
+     */
+    public static Icon getIcon(Card card) {
+        loadCardIcons();
+
+        return iconCards[valueAsInt(card)][suitAsInt(card)];
+    }
+
+    public static Icon getBackCardIcon() {
+        return iconBack;
+    }
+}
+
+
+/**
+ * Card class represents a single card.
+ */
+class Card {
+    public enum Suit { // All possible suits of a card
+        CLUBS,
+        DIAMONDS,
+        HEARTS,
+        SPADES
+    }
+
+    private char value;
+    private Suit suit;
+    private boolean errorFlag; // Whether this Card has an error.
+
+    public static char[] valuRanks = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'X'};
+
+    /**
+     * No argument constructor
+     */
+    Card() {
+        value = 'A';
+        suit = Suit.SPADES;
+    }
+
+    /**
+     * Constructor with value and suit.
+     *
+     * @param value The value of the card.
+     * @param suit  The suit of the card.
+     */
+    Card(char value, Suit suit) {
+        set(value, suit);
+    }
+
+    /**
+     * Copy constructor
+     *
+     * @param card Card to make copy of.
+     */
+    Card(Card card) {
+        set(card.getValue(), card.getSuit());
+    }
+
+    private static int getRankIndex(char cardValue) {
+        int i;
+
+        for (i = 0; i < valuRanks.length; i++) {
+            if (new Character(valuRanks[i]).equals(cardValue)) break;
+        }
+
+        return i;
+    }
+
+    public static void arraySort(Card[] cards, int arraySize) {
+        Card temp;
+
+        for (int i = 0; i < arraySize - 1; i++) {
+            for (int j = 0; j < arraySize - i - 1; j++) {
+                if (getRankIndex(cards[j].getValue()) > getRankIndex(cards[j + 1].getValue())) {
+                    // swap cards[j+1] and cards[i]
+                    temp = cards[j];
+                    cards[j] = cards[j + 1];
+                    cards[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if the given Card object equals this one.
+     *
+     * @param card Card instance to check for equality to this.
+     * @return Whether the Card objects are equal.
+     */
+    public boolean equals(Card card) {
+        return card != null && card.getSuit() == suit && card.getValue() == value && card.getErrorFlag() == errorFlag;
+    }
+
+    /**
+     * Check if this Card has an error.
+     *
+     * @return Whether the Card object has an error.
+     */
+    public boolean getErrorFlag() {
+        return errorFlag;
+    }
+
+    /**
+     * Get the suit of this card.
+     *
+     * @return Suit of card.
+     */
+    public Suit getSuit() {
+        return suit;
+    }
+
+    /**
+     * Get the value of this card.
+     *
+     * @return Value of this card.
+     */
+    public char getValue() {
+        return value;
+    }
+
+    /**
+     * Check if the parameters given are valid for a Card.
+     *
+     * @param value Value given.
+     * @param suit  Suit given.
+     * @return Whether the parameters are valid.
+     */
+    private boolean isValid(char value, Suit suit) {
+        if (value >= '2' && value <= '9') {
+            return true;
+        }
+
+        switch (value) {
+            case 'T':
+            case 'J':
+            case 'Q':
+            case 'K':
+            case 'A':
+            case 'X':
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Set given parameters for Card.
+     *
+     * @param value Value to set for Card.
+     * @param suit  Suit to set for Card.
+     * @return Whether the parameters were able to be set.
+     */
+    public boolean set(char value, Suit suit) {
+        errorFlag = !isValid(value, suit);
+
+        if (!errorFlag) {
+            this.value = value;
+            this.suit = suit;
+        }
+
+        return !errorFlag;
+    }
+
+    /**
+     * Display Card as a String.
+     *
+     * @return Card data as a String.
+     */
+    public String toString() {
+        if (!errorFlag) {
+            return value + " of " + suit;
+        } else {
+            return "** illegal **";
+        }
+    }
+}
+
+
+/**
+ * Hand class represents a hand of cards held by a user.
+ */
+class Hand {
+    // Limit size of array
+    public static final int MAX_CARDS = 50;
+
+    private Card myCards[];
+    private int numCards;
+
+    /**
+     * No argument constructor
+     */
+    Hand() {
+        resetHand();
+    }
+
+    /**
+     * Remove all cards from the hand.
+     */
+    public void resetHand() {
+        this.myCards = new Card[MAX_CARDS];
+        this.numCards = 0;
+    }
+
+    /**
+     * Add a copy of the card to the next available position in the myCards array.
+     *
+     * @param card Card instance to add to the hand.
+     * @return true on success array insert, false otherwise
+     */
+    public boolean takeCard(Card card) {
+        if (numCards < MAX_CARDS) {
+            Card newCard = new Card(card);
+            myCards[numCards] = newCard;
+            this.numCards++;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes and returns the card in the top occupied position of the array.
+     *
+     * @return the card that was removed from the top of the array, or Card with error flag if nocards to play.
+     */
+    public Card playCard() {
+        if (numCards > 0) {
+            numCards--;
+            return new Card(myCards[numCards]);
+        }
+        // No cards to play, return a card with an error flag
+        return new Card('1', Card.Suit.CLUBS);
+    }
+
+    /**
+     * Play a card from a certain position in hand.
+     *
+     * @param cardIndex Position of Card to play.
+     * @return Card to Play.
+     */
+    public Card playCard(int cardIndex) {
+        if ( numCards == 0 ) {// error
+            //Creates a card that does not work
+            return new Card('1', Card.Suit.SPADES);
+        }
+
+        //Decreases numCards.
+        Card card = myCards[cardIndex];
+
+        numCards--;
+        for(int i = cardIndex; i < numCards; i++) {
+            myCards[i] = myCards[i+1];
+        }
+
+        myCards[numCards] = null;
+
+        return card;
+    }
+
+    /**
+     * Diplay the entire hand.
+     *
+     * @return Hand data as a String.
+     */
+    public String toString() {
+        String result = "Hand = ( ";
+        for (int i = 0; i < numCards; i++) {
+            result = result + myCards[i].toString() + ", ";
+        }
+        // Remove last trailing comma and add closing parenthesis
+        if (numCards > 0) result = result.substring(0, result.length() - 2);
+        return result + " )";
+    }
+
+    /**
+     * Accessor for the current number of Cards held in the Hand.
+     *
+     * @return the current number of Cards held in the Hand.
+     */
+    public int getNumCards() {
+        return numCards;
+    }
+
+    /**
+     * Access individual card.
+     *
+     * @param k the position in the array to pull a Card from.
+     * @return Card at k position in hand or Card with error flag if k is bad.
+     */
+    public Card inspectCard(int k) {
+        if (0 <= k && k < numCards) {
+            return new Card(myCards[k]);
+        }
+        // Return a card with an error flag
+        return new Card('1', Card.Suit.CLUBS);
+    }
+
+    /**
+     * Sort Cards in hand.
+     */
+    public void sort() {
+        if (numCards > 1) { // if 1 or less we don't need to sort
+            Card.arraySort(myCards, numCards);
+        }
+    }
+}
+
+
+/**
+ * Deck class represents a deck of cards.
+ */
+class Deck {
+    public static final int MAX_CARDS = 336; // 6*56 packs of 56 cards; 52 + 4 Jokers
+    private static int PACK_SIZE = 52;
+    private static Card[] masterPack = new Card[PACK_SIZE + 4]; // adjust for 4 Jokers
+    private Card[] cards;
+    private int topCard; // 0 when the deck is empty
+    private int numPacks; // how many card packs are in the deck
+
+    /**
+     * No argument constructor
+     */
+    Deck() {
+        this(1); // default size of 1 pack
+    }
+
+    /**
+     * Constructor with number of packs.
+     *
+     * @param numPacks Number of packs to include in deck.
+     */
+    Deck(int numPacks) {
+        topCard = 0;
+        cards = new Card[MAX_CARDS];
+        this.numPacks = numPacks;
+
+        allocateMasterPack();
+        init(numPacks);
+    }
+
+    /**
+     * Fill up the deck with the given number of card packs.
+     *
+     * @param numPacks Number of packs to initialize the deck.
+     */
+    public void init(int numPacks) {
+        // fill up cards array
+        if (numPacks < 1 || numPacks > 6) numPacks = 1; // default if numPacks out of range.
+
+        topCard = numPacks * PACK_SIZE;
+        for (int i = 0; i < numPacks; i++) {
+            for (int j = 0; j < PACK_SIZE; j++) {
+                cards[(PACK_SIZE * i) + j] = new Card(masterPack[j]);
+            }
+        }
+    }
+
+    /**
+     * Shuffle the deck in a random order.
+     */
+    public void shuffle() {
+        // mixes up the cards with the help of the standard random number generator.
+        for (int i = 0; i < topCard; i++) {
+            int index = (int) (Math.random() * (topCard - 1));
+            Card temp = cards[index];
+            cards[index] = cards[i];
+            cards[i] = temp;
+        }
+    }
+
+    /**
+     * Deal out a Card from cards.
+     *
+     * @return Card dealt.
+     */
+    public Card dealCard() {
+        if (topCard > 0) {
+            topCard--;
+            return new Card(cards[topCard]);
+        } else {
+            return new Card('1', Card.Suit.SPADES);
+        }
+    }
+
+    public int getTopCard() {
+        return topCard;
+    }
+
+    /**
+     * Return a Card with errorFlag = true, if k is out of range. pre-condition: deck is not empty and k is within
+     * range.
+     *
+     * @param k The index of the card to inspect.
+     * @return The Card at the index or an illegal Card.
+     */
+    public Card inspectCard(int k) {
+        if (topCard != 0 && k >= 0 && k < topCard) {
+            return new Card(cards[k]);
+        }
+
+        return new Card('1', Card.Suit.DIAMONDS);
+    }
+
+    /**
+     * Fill the masterPack card array. We should only do this once, regardless of how many Deck objects there are.
+     */
+    private static void allocateMasterPack() {
+        if (masterPack[0] != null) { // return early if we have already executed this setup
+            return;
+        }
+
+        Card.Suit[] suits = Card.Suit.values();
+        char[] values = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'};
+
+        // fill every value of a suit before moving to the next suit
+        for (int i = 0; i < suits.length; i++) {
+            for (int j = 0; j < values.length; j++) {
+                masterPack[(values.length * i) + j] = new Card(values[j], suits[i]);
+            }
+        }
+    }
+
+    /**
+     * Sort the Deck.
+     */
+    public void sort() {
+        if (topCard > 1) { // if 1 or less we don't need to sort
+            Card.arraySort(cards, topCard);
+        }
+    }
+
+    /**
+     * Return how many cards are in the Deck.
+     *
+     * @return Number of cards in the Deck.
+     */
+    public int getNumCards() {
+        return topCard;
+    }
+
+    /**
+     * Add a Card to the top of the Deck.
+     *
+     * @param card Card to add.
+     * @return Whether adding the Card was successful.
+     */
+    public boolean addCard(Card card) {
+        int numInstancesFound = 0;
+
+        if (topCard > 0) { // check number of existing instances
+            for (int i = 0; i < topCard; i++) {
+                if (cards[i].equals(card)) numInstancesFound++;
+            }
+
+            if (numInstancesFound == numPacks) return false;
+        }
+
+        cards[topCard] = new Card(card);
+        topCard++;
+
+        return true;
+    }
+
+    /**
+     * Remove a certain card from the deck.
+     *
+     * @param card Card to remove
+     * @return Whether Card was able to be removed
+     */
+    public boolean removeCard(Card card) {
+        if (topCard == 0) return false; // return false is Deck is empty
+
+        boolean foundCard = false;
+
+        for (int i = 0; i < topCard; i++) {
+            if (cards[i].equals(card)) {
+                foundCard = true;
+
+                // swap card with top of deck
+                cards[i] = cards[topCard - 1];
+                cards[topCard - 1] = null;
+                topCard--;
+
+                break;
+            }
+        }
+
+        return foundCard;
+    }
+}
