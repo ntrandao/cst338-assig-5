@@ -9,8 +9,8 @@ public class Controller {
    /**
     * Constants to keep track of Human and Computer hand indexes
     */
-   static int COMPUTER_HAND_INDEX = 0;
-   static int HUMAN_HAND_INDEX = 1;
+   static final int COMPUTER_HAND_INDEX = 0;
+   static final int HUMAN_HAND_INDEX = 1;
 
    private Model model;
    private View view;
