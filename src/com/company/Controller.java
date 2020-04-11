@@ -6,25 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Controller {
-
    /**
-    * UI Labels
-    */
-   static JLabel[] computerLabels;
-   static JButton[] humanLabels;
-   static JLabel[] playedCardLabels;
-
-   /**
-    * Game Managers
-    */
-   static CardTable myCardTable;  // CardTable instance
-
-   /**
-    * Constants to keep track of Human and Computer hand indexes in CardGameFramework
+    * Constants to keep track of Human and Computer hand indexes
     */
    static int COMPUTER_HAND_INDEX = 0;
    static int HUMAN_HAND_INDEX = 1;
-
 
    private Model model;
    private View view;
@@ -32,35 +18,33 @@ public class Controller {
    Controller(Model m, View v) {
       model = m;
       view = v;
+
+      model.getLowCardGame().deal(); // deal to players
+      initView();
    }
 
    public void initController() {
-      computerLabels = new JLabel[model.getNumCardsPerHand()];
-      humanLabels = new JButton[model.getNumCardsPerHand()];
-      playedCardLabels = new JLabel[model.getNumPlayers()];
+      playCards(); // start playing game
+   }
 
-      myCardTable = new CardTable("CardTable", model.getNumCardsPerHand(), model.getNumPlayers());
-      myCardTable.setSize(800, 600);
-      myCardTable.setLocationRelativeTo(null);
-      myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+   private void initView() {
+      view.setCardTable(new CardTable("CardTable", model.getNumCardsPerHand(), model.getNumPlayers()));
 
-      model.getLowCardGame().deal(); // deal to players
+      view.setComputerLabels(new JLabel[model.getNumCardsPerHand()]);
+      view.setHumanLabels(new JButton[model.getNumCardsPerHand()]);
+      view.setPlayedCardLabels(new JLabel[model.getNumPlayers()]);
 
-      myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in play area
-      myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
-      myCardTable.getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
-      myCardTable.getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
+      view.getCardTable().setSize(800, 600);
+      view.getCardTable().setLocationRelativeTo(null);
+      view.getCardTable().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+      view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in play area
+      view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
+      view.getCardTable().getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
+      view.getCardTable().getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
       renderHands();
       // show everything to the user
-      myCardTable.setVisible(true);
-      // game will start with computer playing first
-      model.setComputerWin(true);
-      model.setHumanWin(false);
-
-      /**
-       * Start Playing Game
-       */
-      playCards();
+      view.getCardTable().setVisible(true);
    }
 
    /**
@@ -81,7 +65,7 @@ public class Controller {
       String displayText =
             "Game is Over. Final Scores: \n" + "Computer: " + numComputerWinnings + " Cards\n"
                   + "You: " + numHumanWinnings + " Cards\n" + resultText;
-      JOptionPane.showMessageDialog(myCardTable, displayText, "Round Results", JOptionPane.PLAIN_MESSAGE);
+      JOptionPane.showMessageDialog(view.getCardTable(), displayText, "Round Results", JOptionPane.PLAIN_MESSAGE);
    }
 
    /**
@@ -97,7 +81,7 @@ public class Controller {
     * Reset for next round
     */
    private void resetForNewRound() {
-      Component[] playAreaLabels = myCardTable.getPnlPlayArea().getComponents();
+      Component[] playAreaLabels = view.getCardTable().getPnlPlayArea().getComponents();
       for (int i = 0; i < playAreaLabels.length; i++) {
          ((JLabel) playAreaLabels[i]).setIcon(null); // set the play area icons to null
       }
@@ -105,14 +89,14 @@ public class Controller {
       for (int i = 0; i < model.getNumPlayers(); i++) {
          model.getLowCardGame().takeCard(i); // replenish hand
       }
-      myCardTable.getPnlHumanHand().removeAll();
-      myCardTable.getPnlComputerHand().removeAll();
+      view.getCardTable().getPnlHumanHand().removeAll();
+      view.getCardTable().getPnlComputerHand().removeAll();
 
       if (model.getLowCardGame().getNumCardsRemainingInDeck() == 0)
          model.setNumCardsPerHand(model.getNumCardsPerHand() - 1);
       renderHands();
-      myCardTable.revalidate();
-      myCardTable.repaint();
+      view.getCardTable().revalidate();
+      view.getCardTable().repaint();
       // End Game if either player is out of cards
       if (model.getLowCardGame().getHand(COMPUTER_HAND_INDEX).getNumCards() == 1 || model.getLowCardGame().getHand(HUMAN_HAND_INDEX).getNumCards() == 1) {
          handleEndGame();
@@ -155,19 +139,22 @@ public class Controller {
          model.setComputerWin(true);
          resultText = "You Lost";
       }
-      JOptionPane.showMessageDialog(myCardTable,
+      JOptionPane.showMessageDialog(view.getCardTable(),
             resultText, "Round Results", JOptionPane.PLAIN_MESSAGE); // Display dialog with results
-      myCardTable.getPnlPlayArea().revalidate();
+      view.getCardTable().getPnlPlayArea().revalidate();
    }
 
    private void renderHands() {
-      computerLabels = new JLabel[model.getNumCardsPerHand()];
-      humanLabels = new JButton[model.getNumCardsPerHand()];
+      view.setComputerLabels(new JLabel[model.getNumCardsPerHand()]);
+      view.setHumanLabels(new JButton[model.getNumCardsPerHand()]);
+
+      JLabel[] computerLabels = view.getComputerLabels();
+      JButton[] humanLabels = view.getHumanLabels();
       // CREATE COMP LABELS ----------------------------------------------------
       for (int i = 0; i < computerLabels.length; i++) {
          computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
          // ADD COMP LABELS TO PANELS -----------------------------------------
-         myCardTable.getPnlComputerHand().add(computerLabels[i]);
+         view.getCardTable().getPnlComputerHand().add(computerLabels[i]);
       }
       // CREATE HUMAN LABELS ----------------------------------------------------
       for (int i = 0; i < humanLabels.length; i++) {
@@ -178,7 +165,7 @@ public class Controller {
          playCardButton.addActionListener(new CardButtonListener());
          humanLabels[i] = playCardButton;
          // ADD HUMAN LABELS TO PANELS -----------------------------------------
-         myCardTable.getPnlHumanHand().add(humanLabels[i]);
+         view.getCardTable().getPnlHumanHand().add(humanLabels[i]);
       }
    }
 
@@ -186,7 +173,7 @@ public class Controller {
       Hand hand = model.getLowCardGame().getHand(COMPUTER_HAND_INDEX);
       Card cardToPlay = null;
       hand.sort();  //want to sort out the hand to get 1 card lower than humanCardToPlay
-      if (playedCardLabels[HUMAN_HAND_INDEX] == null) {  //if no display on humanCard, then play at index 0.
+      if (view.getPlayedCardLabels()[HUMAN_HAND_INDEX] == null) {  //if no display on humanCard, then play at index 0.
          cardToPlay = model.getLowCardGame().playCard(COMPUTER_HAND_INDEX, 0); //which if is sorted then would be
          // lowest card
       } else {
@@ -201,7 +188,7 @@ public class Controller {
          cardToPlay = hand.playCard(hand.getNumCards() - 1);
       }
       // update ui
-      JLabel playArea = (JLabel) myCardTable.getPnlPlayArea().getComponent(COMPUTER_HAND_INDEX);
+      JLabel playArea = (JLabel) view.getCardTable().getPnlPlayArea().getComponent(COMPUTER_HAND_INDEX);
       playArea.setIcon(GUICard.getIcon(cardToPlay));
       return cardToPlay;
    }
@@ -210,7 +197,7 @@ public class Controller {
       Hand hand = model.getLowCardGame().getHand(HUMAN_HAND_INDEX);
       Card cardToPlay = model.getLowCardGame().playCard(HUMAN_HAND_INDEX, handIndex);
       // update ui
-      JLabel playArea = (JLabel) myCardTable.getPnlPlayArea().getComponent(HUMAN_HAND_INDEX);
+      JLabel playArea = (JLabel) view.getCardTable().getPnlPlayArea().getComponent(HUMAN_HAND_INDEX);
       playArea.setIcon(GUICard.getIcon(cardToPlay));
       return cardToPlay;
    }

@@ -27,6 +27,10 @@ public class Model {
          int numUnusedCardsPerPack, Card[] unusedCardsPerPack,
          int numPlayers, int numCardsPerHand) {
 
+      // game will start with computer playing first
+      setComputerWin(true);
+      setHumanWin(false);
+
       setNumPlayers(numPlayers);
       setNumCardsPerHand(numCardsPerHand);
 
@@ -41,67 +45,67 @@ public class Model {
       numWinningsPerPlayer = new int[this.numPlayers]; // so we know index to add cards for each win
    }
 
-   public static CardGameFramework getLowCardGame() {
+   public CardGameFramework getLowCardGame() {
       return LowCardGame;
    }
 
-   public static void setLowCardGame(CardGameFramework lowCardGame) {
+   public void setLowCardGame(CardGameFramework lowCardGame) {
       LowCardGame = lowCardGame;
    }
 
-   public static int getNumPlayers() {
+   public int getNumPlayers() {
       return numPlayers;
    }
 
-   public static void setNumPlayers(int numPlayers) {
+   public void setNumPlayers(int numPlayers) {
       Model.numPlayers = numPlayers;
    }
 
-   public static int getNumCardsPerHand() {
+   public int getNumCardsPerHand() {
       return numCardsPerHand;
    }
 
-   public static void setNumCardsPerHand(int numCardsPerHand) {
+   public void setNumCardsPerHand(int numCardsPerHand) {
       Model.numCardsPerHand = numCardsPerHand;
    }
 
-   public static boolean isComputerWin() {
+   public boolean isComputerWin() {
       return computerWin;
    }
 
-   public static void setComputerWin(boolean computerWin) {
+   public void setComputerWin(boolean computerWin) {
       Model.computerWin = computerWin;
    }
 
-   public static boolean isHumanWin() {
+   public boolean isHumanWin() {
       return humanWin;
    }
 
-   public static void setHumanWin(boolean humanWin) {
+   public void setHumanWin(boolean humanWin) {
       Model.humanWin = humanWin;
    }
 
-   public static Card[] getCardsInPlay() {
+   public Card[] getCardsInPlay() {
       return cardsInPlay;
    }
 
-   public static void setCardsInPlay(Card[] cardsInPlay) {
+   public void setCardsInPlay(Card[] cardsInPlay) {
       Model.cardsInPlay = cardsInPlay;
    }
 
-   public static Card[][] getCardWinningsPerPlayer() {
+   public Card[][] getCardWinningsPerPlayer() {
       return cardWinningsPerPlayer;
    }
 
-   public static void setCardWinningsPerPlayer(int playerIndex, int cardIndex, Card card) {
+   public void setCardWinningsPerPlayer(int playerIndex, int cardIndex, Card card) {
       cardWinningsPerPlayer[playerIndex][cardIndex] = new Card(card);
    }
 
-   public static int getNumWinningsPerPlayer(int playerIndex) {
+   public int getNumWinningsPerPlayer(int playerIndex) {
       return numWinningsPerPlayer[playerIndex];
    }
 
-   public static void setNumWinningsPerPlayer(int playerIndex, int numWinnings) {
+   public void setNumWinningsPerPlayer(int playerIndex, int numWinnings) {
       Model.numWinningsPerPlayer[playerIndex] = numWinnings;
    }
 }
