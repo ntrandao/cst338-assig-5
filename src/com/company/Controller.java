@@ -58,7 +58,8 @@ public class Controller {
       view.getCardTable().setLocationRelativeTo(null);
       view.getCardTable().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-      view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in play area
+      view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in
+      // play area
       view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
       view.getCardTable().getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
       view.getCardTable().getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
@@ -68,21 +69,20 @@ public class Controller {
     * Show a dialog with Game Results.
     */
    private void handleEndGame() {
-      int numHumanWinnings = model.getNumWinningsPerPlayer(HUMAN_HAND_INDEX);
-      int numComputerWinnings = model.getNumWinningsPerPlayer(COMPUTER_HAND_INDEX);
+      int numHumanWinnings = model.getNumWinningsByPlayerIndex(HUMAN_HAND_INDEX);
+      int numComputerWinnings = model.getNumWinningsByPlayerIndex(COMPUTER_HAND_INDEX);
 
       String resultText = "";
-      if  (numHumanWinnings == numComputerWinnings) {
+      if (numHumanWinnings == numComputerWinnings) {
          resultText = "You tied!";
       } else if (numHumanWinnings > numComputerWinnings) {
          resultText = "You win!";
       } else {
          resultText = "Computer wins!";
       }
-      String displayText =
-            "Game is Over. Final Scores: \n" + "Computer: " + numComputerWinnings + " Cards\n"
-                  + "You: " + numHumanWinnings + " Cards\n" + resultText;
-      JOptionPane.showMessageDialog(view.getCardTable(), displayText, "Round Results", JOptionPane.PLAIN_MESSAGE);
+
+      View.displayMessage("Game is Over. Final Scores: \n" + "Computer: " + numComputerWinnings + " Cards\n"
+            + "You: " + numHumanWinnings + " Cards\n" + resultText, "Game Results");
    }
 
    /**
@@ -90,7 +90,7 @@ public class Controller {
     */
    private void playCards() {
       if (model.isComputerWin()) {
-         model.getCardsInPlay()[0] = computerPlayCard();
+         model.setCardInPlay(0, computerPlayCard());
       }
    }
 
@@ -118,7 +118,7 @@ public class Controller {
       }
       // Otherwise check if computer starts new round
       else if (model.isComputerWin()) {
-         model.getCardsInPlay()[0] = computerPlayCard();
+         model.setCardInPlay(0, computerPlayCard());
       }
    }
 
@@ -128,21 +128,22 @@ public class Controller {
    private void handleRoundResults() {
       String resultText = "";
       int winnerIndex = 0; // start with index: 0 as winner
-      for (int i = 1; i < model.getCardsInPlay().length; i++) {
-         int cardValue = GUICard.valueAsInt(model.getCardsInPlay()[i]);
-         int currentLowest = GUICard.valueAsInt(model.getCardsInPlay()[winnerIndex]);
+      for (int i = 1; i < model.getNumCardsInPlay(); i++) {
+         int cardValue = GUICard.valueAsInt(model.getCardInPlay(i));
+         int currentLowest = GUICard.valueAsInt(model.getCardInPlay(winnerIndex));
          if (cardValue < currentLowest) {
             winnerIndex = i;
          } else if (cardValue == currentLowest) {
-            if (GUICard.suitAsInt(model.getCardsInPlay()[i]) < GUICard.suitAsInt(model.getCardsInPlay()[winnerIndex])) { // break tie on suit
+            if (GUICard.suitAsInt(model.getCardInPlay(i)) < GUICard.suitAsInt(model.getCardInPlay(winnerIndex))) { // break tie on suit
                winnerIndex = i;
             }
          }
       }
       // save winnings
-      int numCardsWon = model.getNumWinningsPerPlayer(winnerIndex);
-      model.setCardWinningsPerPlayer(winnerIndex, numCardsWon, model.getCardsInPlay()[0]); // actually place cards in winnings
-      model.setCardWinningsPerPlayer(winnerIndex, numCardsWon + 1, model.getCardsInPlay()[1]);
+      int numCardsWon = model.getNumWinningsByPlayerIndex(winnerIndex);
+      model.setCardWinningsPerPlayer(winnerIndex, numCardsWon, model.getCardInPlay(0)); // actually place cards in
+      // winnings
+      model.setCardWinningsPerPlayer(winnerIndex, numCardsWon + 1, model.getCardInPlay(1));
       model.setNumWinningsPerPlayer(winnerIndex, numCardsWon + 2);
 
       if (winnerIndex == HUMAN_HAND_INDEX) {
@@ -154,8 +155,8 @@ public class Controller {
          model.setComputerWin(true);
          resultText = "You Lost";
       }
-      JOptionPane.showMessageDialog(view.getCardTable(),
-            resultText, "Round Results", JOptionPane.PLAIN_MESSAGE); // Display dialog with results
+
+      View.displayMessage(resultText, "Round Results"); // Display dialog with results
       view.getCardTable().getPnlPlayArea().revalidate();
    }
 
@@ -200,7 +201,7 @@ public class Controller {
          // lowest card
       } else {
          for (int i = hand.getNumCards() - 1; i > 0; i--) { // find highest card that is sufficient to win round
-            if (model.getCardsInPlay()[HUMAN_HAND_INDEX].getValue() < hand.inspectCard(i).getValue()) {
+            if (model.getCardInPlay(HUMAN_HAND_INDEX).getValue() < hand.inspectCard(i).getValue()) {
                cardToPlay = model.getLowCardGame().playCard(COMPUTER_HAND_INDEX, i);
                break;
             }
@@ -216,7 +217,6 @@ public class Controller {
    }
 
    private Card humanPlayCard(int handIndex) {
-      Hand hand = model.getLowCardGame().getHand(HUMAN_HAND_INDEX);
       Card cardToPlay = model.getLowCardGame().playCard(HUMAN_HAND_INDEX, handIndex);
       // update ui
       JLabel playArea = (JLabel) view.getCardTable().getPnlPlayArea().getComponent(HUMAN_HAND_INDEX);
@@ -232,12 +232,12 @@ public class Controller {
       public void actionPerformed(ActionEvent e) {
          int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
          JButton button = (JButton) e.getSource();
-         model.getCardsInPlay()[1] = humanPlayCard(slotNumber);
+         model.setCardInPlay(1, humanPlayCard(slotNumber));
          button.setIcon(null);
          button.setEnabled(false);
          //human is playing first this round
          if (model.isHumanWin()) {
-            model.getCardsInPlay()[0] = computerPlayCard();
+            model.setCardInPlay(0, computerPlayCard());
          }
          handleRoundResults();
          resetForNewRound();

@@ -15,6 +15,10 @@ public class View {
     */
    static CardTable cardTable;  // CardTable instance
 
+   public static void displayMessage(String message, String title) {
+      JOptionPane.showMessageDialog(cardTable, message, title, JOptionPane.PLAIN_MESSAGE);
+   }
+
    public JLabel[] getComputerLabels() {
       return computerLabels;
    }
