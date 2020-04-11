@@ -24,6 +24,26 @@ public class Controller {
    }
 
    public void initController() {
+      for (int i = 0; i < model.getNumCardsPerHand(); i++) { // attach button listener to human cards
+         // player hand should be buttons
+         JButton playCardButton =
+               new JButton(GUICard.getIcon(model.getLowCardGame().getHand(HUMAN_HAND_INDEX).inspectCard(i)));
+         playCardButton.setActionCommand(String.valueOf(i));
+         playCardButton.addActionListener(new CardButtonListener());
+         view.setHumanLabelAtIndex(i, playCardButton);
+
+         // SET COMPUTER BACK CARD LABELS --------------------------------------
+         view.setComputerLabelAtIndex(i, new JLabel(GUICard.getBackCardIcon()));
+
+         // ADD LABELS TO PANELS -----------------------------------------
+         view.getCardTable().getPnlComputerHand().add(view.getComputerLabelAtIndex(i));
+         view.getCardTable().getPnlHumanHand().add(view.getHumanLabelAtIndex(i));
+      }
+
+      renderHands();
+      // show everything to the user
+      view.getCardTable().setVisible(true);
+
       playCards(); // start playing game
    }
 
@@ -42,9 +62,6 @@ public class Controller {
       view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
       view.getCardTable().getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
       view.getCardTable().getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
-      renderHands();
-      // show everything to the user
-      view.getCardTable().setVisible(true);
    }
 
    /**
@@ -92,13 +109,11 @@ public class Controller {
       view.getCardTable().getPnlHumanHand().removeAll();
       view.getCardTable().getPnlComputerHand().removeAll();
 
-      if (model.getLowCardGame().getNumCardsRemainingInDeck() == 0)
-         model.setNumCardsPerHand(model.getNumCardsPerHand() - 1);
       renderHands();
       view.getCardTable().revalidate();
       view.getCardTable().repaint();
       // End Game if either player is out of cards
-      if (model.getLowCardGame().getHand(COMPUTER_HAND_INDEX).getNumCards() == 1 || model.getLowCardGame().getHand(HUMAN_HAND_INDEX).getNumCards() == 1) {
+      if (model.getLowCardGame().getHand(COMPUTER_HAND_INDEX).getNumCards() == 0 && model.getLowCardGame().getHand(HUMAN_HAND_INDEX).getNumCards() == 0) {
          handleEndGame();
       }
       // Otherwise check if computer starts new round
@@ -145,27 +160,34 @@ public class Controller {
    }
 
    private void renderHands() {
-      view.setComputerLabels(new JLabel[model.getNumCardsPerHand()]);
-      view.setHumanLabels(new JButton[model.getNumCardsPerHand()]);
+      // GENERATE COMP LABELS ----------------------------------------------------
+      for (int i = 0; i < model.getNumCardsPerHand(); i++) {
+         Card card = model.getLowCardGame().getHand(COMPUTER_HAND_INDEX).inspectCard(i);
 
-      JLabel[] computerLabels = view.getComputerLabels();
-      JButton[] humanLabels = view.getHumanLabels();
-      // CREATE COMP LABELS ----------------------------------------------------
-      for (int i = 0; i < computerLabels.length; i++) {
-         computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
+         if (card == null || card.getErrorFlag()) {
+            view.getComputerLabelAtIndex(i).setIcon(null);
+            view.getComputerLabelAtIndex(i).setEnabled(false);
+         }
+
          // ADD COMP LABELS TO PANELS -----------------------------------------
-         view.getCardTable().getPnlComputerHand().add(computerLabels[i]);
+         view.getCardTable().getPnlComputerHand().add(view.getComputerLabelAtIndex(i));
       }
-      // CREATE HUMAN LABELS ----------------------------------------------------
-      for (int i = 0; i < humanLabels.length; i++) {
+
+      // GENERATE HUMAN LABELS ----------------------------------------------------
+      for (int i = 0; i < model.getNumCardsPerHand(); i++) {
          // player hand should be buttons
-         JButton playCardButton =
-               new JButton(GUICard.getIcon(model.getLowCardGame().getHand(HUMAN_HAND_INDEX).inspectCard(i)));
-         playCardButton.setActionCommand(String.valueOf(i));
-         playCardButton.addActionListener(new CardButtonListener());
-         humanLabels[i] = playCardButton;
+         Card card = model.getLowCardGame().getHand(HUMAN_HAND_INDEX).inspectCard(i);
+
+         if (card == null || card.getErrorFlag()) {
+            view.getHumanLabelAtIndex(i).setIcon(null);
+            view.getHumanLabelAtIndex(i).setEnabled(false);
+         } else {
+            view.getHumanLabelAtIndex(i).setIcon(GUICard.getIcon(card));
+            view.getHumanLabelAtIndex(i).setEnabled(true);
+         }
+
          // ADD HUMAN LABELS TO PANELS -----------------------------------------
-         view.getCardTable().getPnlHumanHand().add(humanLabels[i]);
+         view.getCardTable().getPnlHumanHand().add(view.getHumanLabelAtIndex(i));
       }
    }
 

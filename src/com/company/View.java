@@ -19,6 +19,22 @@ public class View {
       return computerLabels;
    }
 
+   public JLabel getComputerLabelAtIndex(int index) {
+      return computerLabels[index];
+   }
+
+   public JLabel setComputerLabelAtIndex(int index, JLabel label) {
+      return computerLabels[index] = label;
+   }
+
+   public JButton getHumanLabelAtIndex(int index) {
+      return humanLabels[index];
+   }
+
+   public void setHumanLabelAtIndex(int index, JButton button) {
+      this.humanLabels[index] = button;
+   }
+
    public void setComputerLabels(JLabel[] computerLabels) {
       this.computerLabels = computerLabels;
    }
