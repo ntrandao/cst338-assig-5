@@ -7,41 +7,34 @@ import java.awt.event.ActionListener;
 
 public class Controller {
 
-   static int NUM_CARDS_PER_HAND = 7;
-   static int NUM_PLAYERS = 2;
-
    /**
     * UI Labels
     */
-   static JLabel[] computerLabels = new JLabel[NUM_CARDS_PER_HAND];
-   static JButton[] humanLabels = new JButton[NUM_CARDS_PER_HAND];
-   static JLabel[] playedCardLabels = new JLabel[NUM_PLAYERS];
+   static JLabel[] computerLabels;
+   static JButton[] humanLabels;
+   static JLabel[] playedCardLabels;
+
    /**
     * Game Managers
     */
-   static CardGameFramework LowCardGame; // CardGameFramework instance
    static CardTable myCardTable;  // CardTable instance
-   /**
-    * CardGameFramework config
-    */
-   static int numPacksPerDeck;
-   static int numJokersPerPack;
-   static int numUnusedCardsPerPack;
-   static Card[] unusedCardsPerPack;
+
    /**
     * Constants to keep track of Human and Computer hand indexes in CardGameFramework
     */
    static int COMPUTER_HAND_INDEX = 0;
    static int HUMAN_HAND_INDEX = 1;
+
    /**
     * Keep track of winnings in 2D array
     */
-   static Card[][] cardWinningsPerPlayer = new Card[NUM_PLAYERS][Deck.MAX_CARDS];
-   static int[] numWinningsPerPlayer = new int[NUM_PLAYERS]; // so we know index to add cards for each win
+   static Card[][] cardWinningsPerPlayer;
+   static int[] numWinningsPerPlayer; // so we know index to add cards for each win
+
    /**
     * Keep track of which cards are in play at any time
     */
-   static Card[] cardsInPlay = new Card[NUM_PLAYERS];
+   static Card[] cardsInPlay;
 
 
    private Model model;
@@ -53,19 +46,25 @@ public class Controller {
    }
 
    public void initController() {
-      myCardTable = new CardTable("CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
+      computerLabels = new JLabel[model.getNumCardsPerHand()];
+      humanLabels = new JButton[model.getNumCardsPerHand()];
+      playedCardLabels = new JLabel[model.getNumPlayers()];
+
+      cardsInPlay = new Card[model.getNumPlayers()];
+
+      /**
+       * Keep track of winnings in 2D array
+       */
+      cardWinningsPerPlayer = new Card[model.getNumPlayers()][Deck.MAX_CARDS];
+      numWinningsPerPlayer = new int[model.getNumPlayers()]; // so we know index to add cards for each win
+
+      myCardTable = new CardTable("CardTable", model.getNumCardsPerHand(), model.getNumPlayers());
       myCardTable.setSize(800, 600);
       myCardTable.setLocationRelativeTo(null);
       myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      numPacksPerDeck = 1;
-      numJokersPerPack = 2;
-      numUnusedCardsPerPack = 0;
-      unusedCardsPerPack = null;
-      LowCardGame = new CardGameFramework(
-            numPacksPerDeck, numJokersPerPack,
-            numUnusedCardsPerPack, unusedCardsPerPack,
-            NUM_PLAYERS, NUM_CARDS_PER_HAND);
-      LowCardGame.deal(); // deal to players
+
+      model.getLowCardGame().deal(); // deal to players
+
       myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in play area
       myCardTable.getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
       myCardTable.getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
@@ -90,8 +89,7 @@ public class Controller {
       String resultText = "";
       if (numWinningsPerPlayer[HUMAN_HAND_INDEX] == numWinningsPerPlayer[COMPUTER_HAND_INDEX]) {
          resultText = "You tied!";
-      }
-      else if (numWinningsPerPlayer[HUMAN_HAND_INDEX] > numWinningsPerPlayer[COMPUTER_HAND_INDEX]) {
+      } else if (numWinningsPerPlayer[HUMAN_HAND_INDEX] > numWinningsPerPlayer[COMPUTER_HAND_INDEX]) {
          resultText = "You win!";
       } else {
          resultText = "Computer wins!";
@@ -106,11 +104,11 @@ public class Controller {
     * Play cards from each hand to playing area
     */
    private void playCards() {
-      if(model.isComputerWin())
-      {
+      if (model.isComputerWin()) {
          cardsInPlay[0] = computerPlayCard();
       }
    }
+
    /**
     * Reset for next round
     */
@@ -120,24 +118,27 @@ public class Controller {
          ((JLabel) playAreaLabels[i]).setIcon(null); // set the play area icons to null
       }
       // Deal out new cards
-      for (int i = 0; i < NUM_PLAYERS; i++) {
-         LowCardGame.takeCard(i); // replenish hand
+      for (int i = 0; i < model.getNumPlayers(); i++) {
+         model.getLowCardGame().takeCard(i); // replenish hand
       }
       myCardTable.getPnlHumanHand().removeAll();
       myCardTable.getPnlComputerHand().removeAll();
-      if(LowCardGame.getNumCardsRemainingInDeck() == 0) NUM_CARDS_PER_HAND--;
+
+      if (model.getLowCardGame().getNumCardsRemainingInDeck() == 0)
+         model.setNumCardsPerHand(model.getNumCardsPerHand() - 1);
       renderHands();
       myCardTable.revalidate();
       myCardTable.repaint();
       // End Game if either player is out of cards
-      if(LowCardGame.getHand(COMPUTER_HAND_INDEX).getNumCards() == 1  || LowCardGame.getHand(HUMAN_HAND_INDEX).getNumCards() == 1) {
+      if (model.getLowCardGame().getHand(COMPUTER_HAND_INDEX).getNumCards() == 1 || model.getLowCardGame().getHand(HUMAN_HAND_INDEX).getNumCards() == 1) {
          handleEndGame();
       }
       // Otherwise check if computer starts new round
-      else if(model.isComputerWin()) {
+      else if (model.isComputerWin()) {
          cardsInPlay[0] = computerPlayCard();
       }
    }
+
    /**
     * Calculate and Display Results
     */
@@ -170,12 +171,13 @@ public class Controller {
          resultText = "You Lost";
       }
       JOptionPane.showMessageDialog(myCardTable,
-            resultText, "Round Results",  JOptionPane.PLAIN_MESSAGE); // Display dialog with results
+            resultText, "Round Results", JOptionPane.PLAIN_MESSAGE); // Display dialog with results
       myCardTable.getPnlPlayArea().revalidate();
    }
+
    private void renderHands() {
-      computerLabels = new JLabel[NUM_CARDS_PER_HAND];
-      humanLabels = new JButton[NUM_CARDS_PER_HAND];
+      computerLabels = new JLabel[model.getNumCardsPerHand()];
+      humanLabels = new JButton[model.getNumCardsPerHand()];
       // CREATE COMP LABELS ----------------------------------------------------
       for (int i = 0; i < computerLabels.length; i++) {
          computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
@@ -185,7 +187,8 @@ public class Controller {
       // CREATE HUMAN LABELS ----------------------------------------------------
       for (int i = 0; i < humanLabels.length; i++) {
          // player hand should be buttons
-         JButton playCardButton = new JButton(GUICard.getIcon(LowCardGame.getHand(HUMAN_HAND_INDEX).inspectCard(i)));
+         JButton playCardButton =
+               new JButton(GUICard.getIcon(model.getLowCardGame().getHand(HUMAN_HAND_INDEX).inspectCard(i)));
          playCardButton.setActionCommand(String.valueOf(i));
          playCardButton.addActionListener(new CardButtonListener());
          humanLabels[i] = playCardButton;
@@ -193,17 +196,18 @@ public class Controller {
          myCardTable.getPnlHumanHand().add(humanLabels[i]);
       }
    }
+
    private Card computerPlayCard() {
-      Hand hand = LowCardGame.getHand(COMPUTER_HAND_INDEX);
+      Hand hand = model.getLowCardGame().getHand(COMPUTER_HAND_INDEX);
       Card cardToPlay = null;
       hand.sort();  //want to sort out the hand to get 1 card lower than humanCardToPlay
       if (playedCardLabels[HUMAN_HAND_INDEX] == null) {  //if no display on humanCard, then play at index 0.
-         cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, 0); //which if is sorted then would be lowest card
-      }
-      else {
-         for(int i = hand.getNumCards() - 1; i > 0; i--) { // find highest card that is sufficient to win round
-            if(cardsInPlay[HUMAN_HAND_INDEX].getValue() < hand.inspectCard(i).getValue()) {
-               cardToPlay = LowCardGame.playCard(COMPUTER_HAND_INDEX, i);
+         cardToPlay = model.getLowCardGame().playCard(COMPUTER_HAND_INDEX, 0); //which if is sorted then would be
+         // lowest card
+      } else {
+         for (int i = hand.getNumCards() - 1; i > 0; i--) { // find highest card that is sufficient to win round
+            if (cardsInPlay[HUMAN_HAND_INDEX].getValue() < hand.inspectCard(i).getValue()) {
+               cardToPlay = model.getLowCardGame().playCard(COMPUTER_HAND_INDEX, i);
                break;
             }
          }
@@ -216,14 +220,16 @@ public class Controller {
       playArea.setIcon(GUICard.getIcon(cardToPlay));
       return cardToPlay;
    }
+
    private Card humanPlayCard(int handIndex) {
-      Hand hand = LowCardGame.getHand(HUMAN_HAND_INDEX);
-      Card cardToPlay = LowCardGame.playCard(HUMAN_HAND_INDEX, handIndex);
+      Hand hand = model.getLowCardGame().getHand(HUMAN_HAND_INDEX);
+      Card cardToPlay = model.getLowCardGame().playCard(HUMAN_HAND_INDEX, handIndex);
       // update ui
       JLabel playArea = (JLabel) myCardTable.getPnlPlayArea().getComponent(HUMAN_HAND_INDEX);
       playArea.setIcon(GUICard.getIcon(cardToPlay));
       return cardToPlay;
    }
+
    /**
     * Inner button listener class
     */
@@ -231,12 +237,12 @@ public class Controller {
       @Override
       public void actionPerformed(ActionEvent e) {
          int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
-         JButton button = (JButton)e.getSource();
+         JButton button = (JButton) e.getSource();
          cardsInPlay[1] = humanPlayCard(slotNumber);
          button.setIcon(null);
          button.setEnabled(false);
          //human is playing first this round
-         if(model.isHumanWin()) {
+         if (model.isHumanWin()) {
             cardsInPlay[0] = computerPlayCard();
          }
          handleRoundResults();
