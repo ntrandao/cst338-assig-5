@@ -12,17 +12,33 @@ public class Model {
 
    static CardGameFramework LowCardGame; // CardGameFramework instance
 
+   /**
+    * Keep track of which cards are in play at any time
+    */
+   static Card[] cardsInPlay;
+
+   /**
+    * Keep track of winnings in 2D array
+    */
+   static Card[][] cardWinningsPerPlayer;
+   static int[] numWinningsPerPlayer; // so we know index to add cards for each win
+
    Model(int numPacks, int numJokersPerPack,
          int numUnusedCardsPerPack, Card[] unusedCardsPerPack,
          int numPlayers, int numCardsPerHand) {
 
-      this.numPlayers = numPlayers;
-      this.numCardsPerHand = numCardsPerHand;
+      setNumPlayers(numPlayers);
+      setNumCardsPerHand(numCardsPerHand);
 
       LowCardGame = new CardGameFramework(
             numPacks, numJokersPerPack,
             numUnusedCardsPerPack, unusedCardsPerPack,
             numPlayers, numCardsPerHand);
+
+      cardsInPlay = new Card[this.numPlayers];
+
+      cardWinningsPerPlayer = new Card[this.numPlayers][Deck.MAX_CARDS];
+      numWinningsPerPlayer = new int[this.numPlayers]; // so we know index to add cards for each win
    }
 
    public static CardGameFramework getLowCardGame() {
@@ -63,5 +79,29 @@ public class Model {
 
    public static void setHumanWin(boolean humanWin) {
       Model.humanWin = humanWin;
+   }
+
+   public static Card[] getCardsInPlay() {
+      return cardsInPlay;
+   }
+
+   public static void setCardsInPlay(Card[] cardsInPlay) {
+      Model.cardsInPlay = cardsInPlay;
+   }
+
+   public static Card[][] getCardWinningsPerPlayer() {
+      return cardWinningsPerPlayer;
+   }
+
+   public static void setCardWinningsPerPlayer(int playerIndex, int cardIndex, Card card) {
+      cardWinningsPerPlayer[playerIndex][cardIndex] = new Card(card);
+   }
+
+   public static int getNumWinningsPerPlayer(int playerIndex) {
+      return numWinningsPerPlayer[playerIndex];
+   }
+
+   public static void setNumWinningsPerPlayer(int playerIndex, int numWinnings) {
+      Model.numWinningsPerPlayer[playerIndex] = numWinnings;
    }
 }
