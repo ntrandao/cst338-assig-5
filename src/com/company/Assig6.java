@@ -4,7 +4,7 @@ package com.company;
  * Project Members: Ericka Koyama, Holly Stephens, Ngoc Tran Do
  * CST 338 Software Design Assignment 6 - Timed Build Game
  */
-
+// test
 public class Assig6 {
    static int NUM_CARDS_PER_HAND = 7;
    static int NUM_PLAYERS = 2;
