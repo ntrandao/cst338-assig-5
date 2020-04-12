@@ -49,7 +49,7 @@ public class CardTable extends JFrame {
     */
    private void setUpPanels() {
       pnlComputerHand = new JPanel(new GridLayout(1, numCardsPerHand));
-      pnlHumanHand = new JPanel(new GridLayout(2, numCardsPerHand));
+      pnlHumanHand = new JPanel(new GridLayout(1, numCardsPerHand));
       pnlPlayArea = new JPanel(new GridLayout(1, numPlayers));
       pnlTurnActions = new JPanel(new FlowLayout());
 
