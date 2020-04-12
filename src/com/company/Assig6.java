@@ -8,7 +8,7 @@ package com.company;
 public class Assig6 {
    static int NUM_CARDS_PER_HAND = 7;
    static int NUM_PLAYERS = 2;
-
+   static final int NUM_STACKS = 3;
    /**
     * CardGameFramework config
     */
@@ -24,7 +24,7 @@ public class Assig6 {
       unusedCardsPerPack = null;
 
       // Assemble all the pieces of the MVC
-      Model m = new Model(numPacksPerDeck, numJokersPerPack, numUnusedCardsPerPack, unusedCardsPerPack, NUM_PLAYERS, NUM_CARDS_PER_HAND);
+      Model m = new Model(numPacksPerDeck, numJokersPerPack, numUnusedCardsPerPack, unusedCardsPerPack, NUM_PLAYERS, NUM_CARDS_PER_HAND, NUM_STACKS);
       View v = new View();
       Controller c = new Controller(m, v);
       c.initController();

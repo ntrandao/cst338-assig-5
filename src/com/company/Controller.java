@@ -93,7 +93,15 @@ public class Controller {
    private void dealStacks() {
 
       for (int i = 0; i < model.getNumCardsInPlay(); i++) {
-         model.setCardInPlay(i, model.getLowCardGame().getCardFromDeck());
+         Card c = model.getLowCardGame().getCardFromDeck();
+         if(!c.getErrorFlag())
+         {
+            model.setCardInPlay(i, c);
+         }
+         else { // invalid card, deck is empty, end game
+            handleEndGame();
+            return;
+         }
       }
    }
 
@@ -297,6 +305,10 @@ public class Controller {
          {
             dealStacks();
             cannotPlay = false;
+         }
+         else
+         {
+            cannotPlay = true;
          }
          computerPlayCard();
       }
