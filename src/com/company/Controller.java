@@ -85,6 +85,9 @@ public class Controller {
          view.getCardTable().getPnlHumanHand().add(view.getHumanLabelAtIndex(i));
       }
 
+      // attach I cannot play listener
+      ((JButton) view.getCardTable().getPnlTurnActions().getComponent(0)).addActionListener(new CannotPlayButtonListener());
+
       renderHands();
       renderStacks();
       // show everything to the user
@@ -101,13 +104,15 @@ public class Controller {
       view.setHumanLabels(new JButton[model.getNumCardsPerHand()]);
       view.setPlayedCardLabels(new JButton[model.getNumStacks()]);
 
-      view.getCardTable().setSize(800, 600);
+      view.getCardTable().setSize(900, 700);
       view.getCardTable().setLocationRelativeTo(null);
       view.getCardTable().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
       view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
       view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
       view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
+
+      view.getCardTable().getPnlTurnActions().add(new JButton("I cannot play"), JButton.CENTER);
    }
 
    /**
