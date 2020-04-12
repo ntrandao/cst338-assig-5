@@ -35,10 +35,6 @@ public class View {
       JOptionPane.showMessageDialog(cardTable, message, title, JOptionPane.PLAIN_MESSAGE);
    }
 
-   public JLabel[] getComputerLabels() {
-      return computerLabels;
-   }
-
    public JLabel getComputerLabelAtIndex(int index) {
       return computerLabels[index];
    }
@@ -57,10 +53,6 @@ public class View {
 
    public void setComputerLabels(JLabel[] computerLabels) {
       this.computerLabels = computerLabels;
-   }
-
-   public JButton[] getHumanLabels() {
-      return humanLabels;
    }
 
    public void setHumanLabels(JButton[] humanLabels) {
@@ -83,9 +75,5 @@ public class View {
 
    public CardTable getCardTable() {
       return cardTable;
-   }
-
-   public void setCardTable(CardTable cardTable) {
-      this.cardTable = cardTable;
    }
 }
