@@ -42,10 +42,6 @@ public class Model {
       return LowCardGame;
    }
 
-   public void setLowCardGame(CardGameFramework lowCardGame) {
-      LowCardGame = lowCardGame;
-   }
-
    public int getNumPlayers() {
       return numPlayers;
    }
@@ -82,11 +78,15 @@ public class Model {
       Model.humanWin = humanWin;
    }
 
-   public Card[] getCardsInPlay() {
-      return cardsInPlay;
+   public int getNumCardsInPlay() {
+      return cardsInPlay.length;
    }
 
-   public void setCardsInPlay(Card[] cardsInPlay) {
-      Model.cardsInPlay = cardsInPlay;
+   public Card getCardInPlay(int index) {
+      return cardsInPlay[index];
+   }
+
+   public void setCardInPlay(int index, Card card) {
+      this.cardsInPlay[index] = card;
    }
 }
