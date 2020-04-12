@@ -98,15 +98,9 @@ public class Controller {
     * Initialize the view with starting values
     */
    private void initView() {
-      view.setCardTable(new CardTable("CardTable", model.getNumCardsPerHand(), model.getNumPlayers()));
-
       view.setComputerLabels(new JLabel[model.getNumCardsPerHand()]);
       view.setHumanLabels(new JButton[model.getNumCardsPerHand()]);
       view.setPlayedCardLabels(new JButton[model.getNumStacks()]);
-
-      view.getCardTable().setSize(900, 700);
-      view.getCardTable().setLocationRelativeTo(null);
-      view.getCardTable().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
       view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
       view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in

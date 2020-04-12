@@ -18,6 +18,13 @@ public class View {
     */
    static CardTable cardTable;  // CardTable instance
 
+   View(String title, int numCardsPerHand, int numPlayers ) {
+      cardTable = new CardTable(title, numCardsPerHand, numPlayers);
+      cardTable.setSize(900, 700);
+      cardTable.setLocationRelativeTo(null);
+      cardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+   }
+
    /**
     * Utility for displaying message dialogs
     *
