@@ -8,7 +8,7 @@ public class View {
     */
    JLabel[] computerLabels;
    JButton[] humanLabels;
-   JLabel[] playedCardLabels;
+   JButton[] playedCardLabels;
 
    /**
     * Game Managers
@@ -51,11 +51,11 @@ public class View {
       this.humanLabels = humanLabels;
    }
 
-   public JLabel[] getPlayedCardLabels() {
+   public JButton[] getPlayedCardLabels() {
       return playedCardLabels;
    }
 
-   public void setPlayedCardLabels(JLabel[] playedCardLabels) {
+   public void setPlayedCardLabels(JButton[] playedCardLabels) {
       this.playedCardLabels = playedCardLabels;
    }
 
