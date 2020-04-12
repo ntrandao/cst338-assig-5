@@ -12,6 +12,8 @@ public class Controller {
    static final int COMPUTER_HAND_INDEX = 0;
    static final int HUMAN_HAND_INDEX = 1;
 
+   static boolean cannotPlay; // a flag to check if we need to re-deal on stack
+
    static int  COMPUTER_CANNOT_PLAY;
    static int HUMAN_CANNOT_PLAY;
 
@@ -33,6 +35,8 @@ public class Controller {
 
       hSlotNum = 3; // invalid slot on stack(0-2) to start
       cSlotNum = 3;
+
+      cannotPlay = false;
 
       COMPUTER_CANNOT_PLAY = 0;
       HUMAN_CANNOT_PLAY = 0;
@@ -70,7 +74,7 @@ public class Controller {
 
       view.setComputerLabels(new JLabel[model.getNumCardsPerHand()]);
       view.setHumanLabels(new JButton[model.getNumCardsPerHand()]);
-      view.setPlayedCardLabels(new JLabel[model.getNumPlayers()]);
+      view.setPlayedCardLabels(new JButton[model.getNumStacks()]);
 
       view.getCardTable().setSize(800, 600);
       view.getCardTable().setLocationRelativeTo(null);
@@ -81,6 +85,16 @@ public class Controller {
       view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
       view.getCardTable().getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
       view.getCardTable().getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
+   }
+
+   /**
+    * Seal a card to each stack in the middle of the table.
+    */
+   private void dealStacks() {
+
+      for (int i = 0; i < model.getNumCardsInPlay(); i++) {
+         model.setCardInPlay(i, model.getLowCardGame().getCardFromDeck());
+      }
    }
 
    /**
@@ -278,7 +292,13 @@ public class Controller {
    private class CannotPlayButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-
+         HUMAN_CANNOT_PLAY += 1;
+         if(cannotPlay) // second cannot play in sequence, re-deal to stacks
+         {
+            dealStacks();
+            cannotPlay = false;
+         }
+         computerPlayCard();
       }
    }
 }

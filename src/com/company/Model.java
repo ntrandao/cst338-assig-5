@@ -33,7 +33,7 @@ public class Model {
       LowCardGame = new CardGameFramework(
             numPacks, numJokersPerPack,
             numUnusedCardsPerPack, unusedCardsPerPack,
-            numPlayers, numCardsPerHand, numStacks);
+            numPlayers, numCardsPerHand);
 
       cardsInPlay = new Card[this.numStacks];
    }
@@ -48,6 +48,10 @@ public class Model {
 
    public void setNumPlayers(int numPlayers) {
       Model.numPlayers = numPlayers;
+   }
+
+   public int getNumStacks() {
+      return numStacks;
    }
 
    public void setNumStacks(int numStacks) {
