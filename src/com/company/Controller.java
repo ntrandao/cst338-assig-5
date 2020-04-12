@@ -15,13 +15,13 @@ public class Controller {
    static final int COMPUTER_HAND_INDEX = 0;
    static final int HUMAN_HAND_INDEX = 1;
 
-   static boolean cannotPlay; // a flag to check if we need to re-deal on stack
+   boolean cannotPlay; // a flag to check if we need to re-deal on stack
 
    /**
     * Integers to track how many times Computer and Human could not play any cards.
     */
-   static int COMPUTER_CANNOT_PLAY;
-   static int HUMAN_CANNOT_PLAY;
+   int COMPUTER_CANNOT_PLAY;
+   int HUMAN_CANNOT_PLAY;
 
    /**
     * Temp space to store a selected Card before played
