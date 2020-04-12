@@ -42,9 +42,6 @@ public class Controller {
       model = m;
       view = v;
 
-      hSelectedCard = null;
-      cSelectedCard = null;
-
       hSlotNum = 3; // invalid slot on stack(0-2) to start
       cSlotNum = 3;
 
