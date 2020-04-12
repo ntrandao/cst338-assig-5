@@ -151,7 +151,7 @@ public class Controller {
       String displayText =
             "Game is Over. Final Scores: \n" + "Computer: " + COMPUTER_CANNOT_PLAY + " forfeits\n"
                   + "You: " + HUMAN_CANNOT_PLAY + " forfeits\n" + resultText;
-      JOptionPane.showMessageDialog(view.getCardTable(), displayText, "Round Results", JOptionPane.PLAIN_MESSAGE);
+      view.displayMessage(displayText, "Round Results");
    }
 
    /**
