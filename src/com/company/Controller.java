@@ -20,7 +20,7 @@ public class Controller {
    /**
     * Integers to track how many times Computer and Human could not play any cards.
     */
-   static int  COMPUTER_CANNOT_PLAY;
+   static int COMPUTER_CANNOT_PLAY;
    static int HUMAN_CANNOT_PLAY;
 
    /**
@@ -116,11 +116,9 @@ public class Controller {
    private void dealStacks() {
       for (int i = 0; i < model.getNumCardsInPlay(); i++) {
          Card c = model.getLowCardGame().getCardFromDeck();
-         if(!c.getErrorFlag())
-         {
+         if (!c.getErrorFlag()) {
             model.setCardInPlay(i, c);
-         }
-         else { // invalid card, deck is empty, end game
+         } else { // invalid card, deck is empty, end game
             handleEndGame();
             return;
          }
@@ -135,8 +133,7 @@ public class Controller {
       for (int i = 0; i < model.getNumCardsInPlay(); i++) {
          JButton playArea = (JButton) view.getCardTable().getPnlPlayArea().getComponent(i);
          Card c = model.getCardInPlay(i);
-         if(null != c && !c.getErrorFlag())
-         {
+         if (null != c && !c.getErrorFlag()) {
             playArea.setIcon(GUICard.getIcon(c));
          }
       }
@@ -340,7 +337,7 @@ public class Controller {
    private class SelectStackButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         if(null != hSelectedCard) {
+         if (null != hSelectedCard) {
             int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
             // determine if select card is valid
             // compare to model.getCardInPlay()
@@ -357,13 +354,11 @@ public class Controller {
       @Override
       public void actionPerformed(ActionEvent e) {
          HUMAN_CANNOT_PLAY += 1;
-         if(cannotPlay) // second cannot play in sequence, re-deal to stacks
+         if (cannotPlay) // second cannot play in sequence, re-deal to stacks
          {
             dealStacks();
             cannotPlay = false;
-         }
-         else
-         {
+         } else {
             cannotPlay = true;
          }
          computerPlayCard();
