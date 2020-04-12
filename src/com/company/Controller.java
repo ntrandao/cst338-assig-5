@@ -9,8 +9,17 @@ public class Controller {
    /**
     * Constants to keep track of Human and Computer hand indexes
     */
-   static int COMPUTER_HAND_INDEX = 0;
-   static int HUMAN_HAND_INDEX = 1;
+   static final int COMPUTER_HAND_INDEX = 0;
+   static final int HUMAN_HAND_INDEX = 1;
+
+   static int  COMPUTER_CANNOT_PLAY;
+   static int HUMAN_CANNOT_PLAY;
+
+   static Card hSelectedCard;
+   static Card cSelectedCard;
+
+   static int hSlotNum;
+   static int cSlotNum;
 
    private Model model;
    private View view;
@@ -18,6 +27,15 @@ public class Controller {
    Controller(Model m, View v) {
       model = m;
       view = v;
+
+      hSelectedCard = null;
+      cSelectedCard = null;
+
+      hSlotNum = 3; // invalid slot on stack(0-2) to start
+      cSlotNum = 3;
+
+      COMPUTER_CANNOT_PLAY = 0;
+      HUMAN_CANNOT_PLAY = 0;
 
       model.getLowCardGame().deal(); // deal to players
       initView();
@@ -69,20 +87,19 @@ public class Controller {
     * Show a dialog with Game Results.
     */
    private void handleEndGame() {
-      int numHumanWinnings = model.getNumWinningsByPlayerIndex(HUMAN_HAND_INDEX);
-      int numComputerWinnings = model.getNumWinningsByPlayerIndex(COMPUTER_HAND_INDEX);
-
       String resultText = "";
-      if (numHumanWinnings == numComputerWinnings) {
+      if  (COMPUTER_CANNOT_PLAY == HUMAN_CANNOT_PLAY) {
+
          resultText = "You tied!";
-      } else if (numHumanWinnings > numComputerWinnings) {
+      } else if (COMPUTER_CANNOT_PLAY > HUMAN_CANNOT_PLAY) {
          resultText = "You win!";
       } else {
          resultText = "Computer wins!";
       }
-
-      View.displayMessage("Game is Over. Final Scores: \n" + "Computer: " + numComputerWinnings + " Cards\n"
-            + "You: " + numHumanWinnings + " Cards\n" + resultText, "Game Results");
+      String displayText =
+            "Game is Over. Final Scores: \n" + "Computer: " + COMPUTER_CANNOT_PLAY + " forfeits\n"
+                  + "You: " + HUMAN_CANNOT_PLAY + " forfeits\n" + resultText;
+      JOptionPane.showMessageDialog(view.getCardTable(), displayText, "Round Results", JOptionPane.PLAIN_MESSAGE);
    }
 
    /**
@@ -140,11 +157,8 @@ public class Controller {
          }
       }
       // save winnings
-      int numCardsWon = model.getNumWinningsByPlayerIndex(winnerIndex);
-      model.setCardWinningsPerPlayer(winnerIndex, numCardsWon, model.getCardInPlay(0)); // actually place cards in
-      // winnings
-      model.setCardWinningsPerPlayer(winnerIndex, numCardsWon + 1, model.getCardInPlay(1));
-      model.setNumWinningsPerPlayer(winnerIndex, numCardsWon + 2);
+
+      // revisit
 
       if (winnerIndex == HUMAN_HAND_INDEX) {
          model.setHumanWin(true);
@@ -230,9 +244,12 @@ public class Controller {
    private class CardButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
+         int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number of the card played
          JButton button = (JButton) e.getSource();
+         // determine if card is valid
+
          model.setCardInPlay(1, humanPlayCard(slotNumber));
+         
          button.setIcon(null);
          button.setEnabled(false);
          //human is playing first this round
@@ -241,6 +258,27 @@ public class Controller {
          }
          handleRoundResults();
          resetForNewRound();
+      }
+   }
+
+   /**
+    * Inner select stack button listener class
+    * Allows the user to specify which stack they are trying to play their selected card on
+    */
+   private class SelectStackButtonListener implements ActionListener {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
+      }
+
+   }
+   /**
+    * Inner "cannot play" button listener class
+    */
+   private class CannotPlayButtonListener implements ActionListener {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+
       }
    }
 }

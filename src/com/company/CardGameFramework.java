@@ -5,6 +5,7 @@ public class CardGameFramework {
    private static final int MAX_PLAYERS = 50;
    private int numPlayers;
    private int numPacks;            // # standard 52-card packs per deck
+   private int numStacks;
    // ignoring jokers or unused cards
    private int numJokersPerPack;    // if 2 per pack & 3 packs per deck, get 6
    private int numUnusedCardsPerPack;  // # cards removed from each pack
@@ -17,7 +18,7 @@ public class CardGameFramework {
    // use cards 2-8 of any suit
    public CardGameFramework(int numPacks, int numJokersPerPack,
                             int numUnusedCardsPerPack, Card[] unusedCardsPerPack,
-                            int numPlayers, int numCardsPerHand) {
+                            int numPlayers, int numCardsPerHand, int numStacks) {
       int k;
       // filter bad values
       if (numPacks < 1 || numPacks > 6)
@@ -41,6 +42,7 @@ public class CardGameFramework {
       deck = new Deck(numPacks);
       // assign to members
       this.numPacks = numPacks;
+      this.numStacks = numStacks;
       this.numJokersPerPack = numJokersPerPack;
       this.numUnusedCardsPerPack = numUnusedCardsPerPack;
       this.numPlayers = numPlayers;
@@ -52,7 +54,7 @@ public class CardGameFramework {
    }
    // constructor overload/default for game like bridge
    public CardGameFramework() {
-      this(1, 0, 0, null, 4, 13);
+      this(1, 0, 0, null, 4, 13, 2);
    }
    public Hand getHand(int k) {
       // hands start from 0 like arrays
