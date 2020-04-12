@@ -58,6 +58,7 @@ public class Controller {
     */
    public void initController() {
       dealStacks();
+
       for (int i = 0; i < model.getNumStacks(); i++) { // attach button listener to card stacks
          JButton stackButton = new JButton(GUICard.getIcon(model.cardsInPlay[i]));
          stackButton.setActionCommand(String.valueOf(i));
@@ -98,7 +99,7 @@ public class Controller {
       view.setHumanLabels(new JButton[model.getNumCardsPerHand()]);
       view.setPlayedCardLabels(new JButton[model.getNumStacks()]);
 
-      for(int i = 0; i < model.getNumStacks(); i++) {
+      for (int i = 0; i < model.getNumStacks(); i++) {
          view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
       }
 
@@ -124,7 +125,6 @@ public class Controller {
     * Render the cards currently in play
     */
    private void renderStacks() {
-
       for (int i = 0; i < model.getNumCardsInPlay(); i++) {
          JButton playArea = (JButton) view.getCardTable().getPnlPlayArea().getComponent(i);
          Card c = model.getCardInPlay(i);
@@ -140,7 +140,6 @@ public class Controller {
    private void handleEndGame() {
       String resultText = "";
       if (COMPUTER_CANNOT_PLAY == HUMAN_CANNOT_PLAY) {
-
          resultText = "You tied!";
       } else if (COMPUTER_CANNOT_PLAY > HUMAN_CANNOT_PLAY) {
          resultText = "You win!";
