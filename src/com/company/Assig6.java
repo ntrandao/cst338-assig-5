@@ -15,6 +15,7 @@ public class Assig6 {
    static int numPacksPerDeck;
    static int numJokersPerPack;
    static int numUnusedCardsPerPack;
+   static int numStacks;
    static Card[] unusedCardsPerPack;
 
    public static void main(String[] args) {

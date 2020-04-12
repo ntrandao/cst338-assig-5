@@ -2,6 +2,9 @@ package com.company;
 
 import javax.swing.*;
 
+/**
+ * View class to hold UI components
+ */
 public class View {
    /**
     * UI Labels
@@ -11,10 +14,16 @@ public class View {
    JButton[] playedCardLabels;
 
    /**
-    * Game Managers
+    * Game Card Table
     */
    static CardTable cardTable;  // CardTable instance
 
+   /**
+    * Utility for displaying message dialogs
+    *
+    * @param message Message to display in dialog
+    * @param title   Title of dialog box
+    */
    public static void displayMessage(String message, String title) {
       JOptionPane.showMessageDialog(cardTable, message, title, JOptionPane.PLAIN_MESSAGE);
    }
@@ -66,5 +75,4 @@ public class View {
    public void setCardTable(CardTable cardTable) {
       this.cardTable = cardTable;
    }
-
 }

@@ -5,23 +5,35 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Controller class to drive game.
+ */
 public class Controller {
    /**
-    * Constants to keep track of Human and Computer hand indexes
+    * Constants to keep track of Human and Computer hand indexes.
     */
    static final int COMPUTER_HAND_INDEX = 0;
    static final int HUMAN_HAND_INDEX = 1;
 
    static boolean cannotPlay; // a flag to check if we need to re-deal on stack
 
+   /**
+    * Integers to track how many times Computer and Human could not play any cards.
+    */
    static int  COMPUTER_CANNOT_PLAY;
    static int HUMAN_CANNOT_PLAY;
 
-   static Card hSelectedCard;
-   static Card cSelectedCard;
+   /**
+    * Temp space to store a selected Card before played
+    */
+   Card hSelectedCard;
+   Card cSelectedCard;
 
-   static int hSlotNum;
-   static int cSlotNum;
+   /**
+    *
+    */
+   int hSlotNum;
+   int cSlotNum;
 
    private Model model;
    private View view;
@@ -45,6 +57,9 @@ public class Controller {
       initView();
    }
 
+   /**
+    * Attach event listeners
+    */
    public void initController() {
       for (int i = 0; i < model.getNumCardsPerHand(); i++) { // attach button listener to human cards
          // player hand should be buttons
@@ -69,6 +84,9 @@ public class Controller {
       playCards(); // start playing game
    }
 
+   /**
+    * Initialize the view with starting values
+    */
    private void initView() {
       view.setCardTable(new CardTable("CardTable", model.getNumCardsPerHand(), model.getNumPlayers()));
 
@@ -80,8 +98,8 @@ public class Controller {
       view.getCardTable().setLocationRelativeTo(null);
       view.getCardTable().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-      view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in
       // play area
+      view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in
       view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
       view.getCardTable().getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
       view.getCardTable().getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
@@ -110,7 +128,7 @@ public class Controller {
     */
    private void handleEndGame() {
       String resultText = "";
-      if  (COMPUTER_CANNOT_PLAY == HUMAN_CANNOT_PLAY) {
+      if (COMPUTER_CANNOT_PLAY == HUMAN_CANNOT_PLAY) {
 
          resultText = "You tied!";
       } else if (COMPUTER_CANNOT_PLAY > HUMAN_CANNOT_PLAY) {
@@ -173,7 +191,8 @@ public class Controller {
          if (cardValue < currentLowest) {
             winnerIndex = i;
          } else if (cardValue == currentLowest) {
-            if (GUICard.suitAsInt(model.getCardInPlay(i)) < GUICard.suitAsInt(model.getCardInPlay(winnerIndex))) { // break tie on suit
+            if (GUICard.suitAsInt(model.getCardInPlay(i)) < GUICard.suitAsInt(model.getCardInPlay(winnerIndex))) { //
+               // break tie on suit
                winnerIndex = i;
             }
          }
@@ -196,6 +215,9 @@ public class Controller {
       view.getCardTable().getPnlPlayArea().revalidate();
    }
 
+   /**
+    * Update player hands in the UI
+    */
    private void renderHands() {
       // GENERATE COMP LABELS ----------------------------------------------------
       for (int i = 0; i < model.getNumCardsPerHand(); i++) {
@@ -228,6 +250,11 @@ public class Controller {
       }
    }
 
+   /**
+    * Computer play card logic.
+    *
+    * @return The card the Computer will play.
+    */
    private Card computerPlayCard() {
       Hand hand = model.getLowCardGame().getHand(COMPUTER_HAND_INDEX);
       Card cardToPlay = null;
@@ -252,6 +279,12 @@ public class Controller {
       return cardToPlay;
    }
 
+   /**
+    * After Human plays card, handles updating the UI and returns the Card played.
+    *
+    * @param handIndex The index in the Human hand of the card to be played.
+    * @return The Card to be played.
+    */
    private Card humanPlayCard(int handIndex) {
       Card cardToPlay = model.getLowCardGame().playCard(HUMAN_HAND_INDEX, handIndex);
       // update ui
@@ -271,7 +304,7 @@ public class Controller {
          // determine if card is valid
 
          model.setCardInPlay(1, humanPlayCard(slotNumber));
-         
+
          button.setIcon(null);
          button.setEnabled(false);
          //human is playing first this round
@@ -284,8 +317,8 @@ public class Controller {
    }
 
    /**
-    * Inner select stack button listener class
-    * Allows the user to specify which stack they are trying to play their selected card on
+    * Inner select stack button listener class Allows the user to specify which stack they are trying to play their
+    * selected card on
     */
    private class SelectStackButtonListener implements ActionListener {
       @Override
@@ -294,6 +327,7 @@ public class Controller {
       }
 
    }
+
    /**
     * Inner "cannot play" button listener class
     */
