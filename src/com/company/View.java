@@ -64,8 +64,14 @@ public class View {
       return playedCardLabels;
    }
 
+   public JButton getPlayedCardLabelsAtIndex(int index) { return playedCardLabels[index]; }
+
    public void setPlayedCardLabels(JButton[] playedCardLabels) {
       this.playedCardLabels = playedCardLabels;
+   }
+
+   public void setPlayedCardLabelsAtIndex(int index, JButton button) {
+      this.playedCardLabels[index] = button;
    }
 
    public CardTable getCardTable() {
