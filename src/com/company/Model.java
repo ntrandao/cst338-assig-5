@@ -1,26 +1,25 @@
 package com.company;
 
+/**
+ * Model class to store game data
+ */
 public class Model {
    /**
     * booleans to track who goes first each turn
     */
-   static boolean computerWin;
-   static boolean humanWin;
+   boolean computerWin;
+   boolean humanWin;
 
-   static int numPlayers;
-   static int numCardsPerHand;
-   static int numStacks;
+   int numPlayers;
+   int numCardsPerHand;
+   int numStacks; // Stacks of Cards in Play
 
-   static CardGameFramework LowCardGame; // CardGameFramework instance
+   CardGameFramework LowCardGame; // CardGameFramework instance
 
    /**
     * Keep track of which cards are in play at any time
     */
-   static Card[] cardsInPlay;
-
-   /**
-    * Keep track of winnings in 2D array
-    */
+   Card[] cardsInPlay;
 
    Model(int numPacks, int numJokersPerPack,
          int numUnusedCardsPerPack, Card[] unusedCardsPerPack,
@@ -47,7 +46,7 @@ public class Model {
    }
 
    public void setNumPlayers(int numPlayers) {
-      Model.numPlayers = numPlayers;
+      this.numPlayers = numPlayers;
    }
 
    public int getNumStacks() {
@@ -55,7 +54,7 @@ public class Model {
    }
 
    public void setNumStacks(int numStacks) {
-      Model.numStacks = numStacks;
+      this.numStacks = numStacks;
    }
 
    public int getNumCardsPerHand() {
@@ -63,7 +62,7 @@ public class Model {
    }
 
    public void setNumCardsPerHand(int numCardsPerHand) {
-      Model.numCardsPerHand = numCardsPerHand;
+      this.numCardsPerHand = numCardsPerHand;
    }
 
    public boolean isComputerWin() {
@@ -71,7 +70,7 @@ public class Model {
    }
 
    public void setComputerWin(boolean computerWin) {
-      Model.computerWin = computerWin;
+      this.computerWin = computerWin;
    }
 
    public boolean isHumanWin() {
@@ -79,7 +78,7 @@ public class Model {
    }
 
    public void setHumanWin(boolean humanWin) {
-      Model.humanWin = humanWin;
+      this.humanWin = humanWin;
    }
 
    public int getNumCardsInPlay() {
