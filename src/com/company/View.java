@@ -8,12 +8,16 @@ public class View {
     */
    JLabel[] computerLabels;
    JButton[] humanLabels;
-   JLabel[] playedCardLabels;
+   JButton[] playedCardLabels;
 
    /**
     * Game Managers
     */
    static CardTable cardTable;  // CardTable instance
+
+   public static void displayMessage(String message, String title) {
+      JOptionPane.showMessageDialog(cardTable, message, title, JOptionPane.PLAIN_MESSAGE);
+   }
 
    public JLabel[] getComputerLabels() {
       return computerLabels;
@@ -47,11 +51,11 @@ public class View {
       this.humanLabels = humanLabels;
    }
 
-   public JLabel[] getPlayedCardLabels() {
+   public JButton[] getPlayedCardLabels() {
       return playedCardLabels;
    }
 
-   public void setPlayedCardLabels(JLabel[] playedCardLabels) {
+   public void setPlayedCardLabels(JButton[] playedCardLabels) {
       this.playedCardLabels = playedCardLabels;
    }
 
