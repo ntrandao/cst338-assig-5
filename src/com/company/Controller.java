@@ -102,9 +102,9 @@ public class Controller {
       view.setHumanLabels(new JButton[model.getNumCardsPerHand()]);
       view.setPlayedCardLabels(new JButton[model.getNumStacks()]);
 
-      view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
-      view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
-      view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
+      for(int i = 0; i < model.getNumStacks(); i++) {
+         view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
+      }
 
       view.getCardTable().getPnlTurnActions().add(new JButton("I cannot play"), JButton.CENTER);
    }
