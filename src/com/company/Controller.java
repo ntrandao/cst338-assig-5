@@ -46,6 +46,14 @@ public class Controller {
    }
 
    public void initController() {
+      dealStacks();
+      for (int i = 0; i < model.getNumStacks(); i++) { // attach button listener to card stacks
+         JButton stackButton = new JButton(GUICard.getIcon(model.cardsInPlay[i]));
+         stackButton.setActionCommand(String.valueOf(i));
+         stackButton.addActionListener(new SelectStackButtonListener());
+         view.setPlayedCardLabelsAtIndex(i, stackButton);
+      }
+
       for (int i = 0; i < model.getNumCardsPerHand(); i++) { // attach button listener to human cards
          // player hand should be buttons
          JButton playCardButton =
@@ -63,10 +71,9 @@ public class Controller {
       }
 
       renderHands();
+      renderStacks();
       // show everything to the user
       view.getCardTable().setVisible(true);
-
-      playCards(); // start playing game
    }
 
    private void initView() {
@@ -80,18 +87,20 @@ public class Controller {
       view.getCardTable().setLocationRelativeTo(null);
       view.getCardTable().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-      view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER); // put placeholders in
-      // play area
+      view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
+      view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
+      view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
+      /*
       view.getCardTable().getPnlPlayArea().add(new JLabel(new ImageIcon()), JLabel.CENTER);
       view.getCardTable().getPnlPlayArea().add(new JLabel("Computer", JLabel.CENTER));
       view.getCardTable().getPnlPlayArea().add(new JLabel("You", JLabel.CENTER));
+       */
    }
 
    /**
-    * Seal a card to each stack in the middle of the table.
+    * Deal a card to each stack in the middle of the table.
     */
    private void dealStacks() {
-
       for (int i = 0; i < model.getNumCardsInPlay(); i++) {
          Card c = model.getLowCardGame().getCardFromDeck();
          if(!c.getErrorFlag())
@@ -101,6 +110,21 @@ public class Controller {
          else { // invalid card, deck is empty, end game
             handleEndGame();
             return;
+         }
+      }
+   }
+
+   /**
+    * Render the cards currently in play
+    */
+   private void renderStacks() {
+
+      for (int i = 0; i < model.getNumCardsInPlay(); i++) {
+         JButton playArea = (JButton) view.getCardTable().getPnlPlayArea().getComponent(i);
+         Card c = model.getCardInPlay(i);
+         if(null != c && !c.getErrorFlag())
+         {
+            playArea.setIcon(GUICard.getIcon(c));
          }
       }
    }
@@ -128,9 +152,7 @@ public class Controller {
     * Play cards from each hand to playing area
     */
    private void playCards() {
-      if (model.isComputerWin()) {
-         model.setCardInPlay(0, computerPlayCard());
-      }
+      dealStacks();
    }
 
    /**
@@ -268,7 +290,7 @@ public class Controller {
       public void actionPerformed(ActionEvent e) {
          int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number of the card played
          JButton button = (JButton) e.getSource();
-         // determine if card is valid
+
 
          model.setCardInPlay(1, humanPlayCard(slotNumber));
          
@@ -290,7 +312,12 @@ public class Controller {
    private class SelectStackButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
+         if(null != hSelectedCard) {
+            int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
+            // determine if select card is valid
+            // compare to model.getCardInPlay()
+         }
+
       }
 
    }
