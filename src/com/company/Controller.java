@@ -12,12 +12,18 @@ public class Controller {
    static final int COMPUTER_HAND_INDEX = 0;
    static final int HUMAN_HAND_INDEX = 1;
 
+   static int  COMPUTER_CANNOT_PLAY;
+   static int HUMAN_CANNOT_PLAY;
+
    private Model model;
    private View view;
 
    Controller(Model m, View v) {
       model = m;
       view = v;
+
+      COMPUTER_CANNOT_PLAY = 0;
+      HUMAN_CANNOT_PLAY = 0;
 
       model.getLowCardGame().deal(); // deal to players
       initView();
@@ -228,6 +234,27 @@ public class Controller {
     * Inner button listener class
     */
    private class CardButtonListener implements ActionListener {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number of the card played
+         JButton button = (JButton) e.getSource();
+         // determine if card is valid
+
+         model.getCardsInPlay()[1] = humanPlayCard(slotNumber);
+         button.setIcon(null);
+         button.setEnabled(false);
+         //human is playing first this round
+         if (model.isHumanWin()) {
+            model.getCardsInPlay()[0] = computerPlayCard();
+         }
+         handleRoundResults();
+         resetForNewRound();
+      }
+   }
+   /**
+    * Inner "cannot play" button listener class
+    */
+   private class CannotPlayButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
          int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
