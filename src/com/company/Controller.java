@@ -98,22 +98,15 @@ public class Controller {
     * Initialize the view with starting values
     */
    private void initView() {
-      view.setCardTable(new CardTable("CardTable", model.getNumCardsPerHand(), model.getNumPlayers()));
-
       view.setComputerLabels(new JLabel[model.getNumCardsPerHand()]);
       view.setHumanLabels(new JButton[model.getNumCardsPerHand()]);
       view.setPlayedCardLabels(new JButton[model.getNumStacks()]);
 
-      view.getCardTable().setSize(900, 700);
-      view.getCardTable().setLocationRelativeTo(null);
-      view.getCardTable().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-      view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
-      view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
-      view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
+      for(int i = 0; i < model.getNumStacks(); i++) {
+         view.getCardTable().getPnlPlayArea().add(new JButton(new ImageIcon())); // put placeholders in
+      }
 
       view.getCardTable().getPnlTurnActions().add(new JButton("I cannot play"), JButton.CENTER);
-
    }
 
    /**
@@ -140,7 +133,6 @@ public class Controller {
          JButton playArea = (JButton) view.getCardTable().getPnlPlayArea().getComponent(i);
          Card c = model.getCardInPlay(i);
          if (null != c && !c.getErrorFlag()) {
-
             playArea.setIcon(GUICard.getIcon(c));
          }
       }
@@ -344,7 +336,6 @@ public class Controller {
    private class SelectStackButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-
          if (null != hSelectedCard) {
             int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
             // determine if select card is valid
