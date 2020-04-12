@@ -50,7 +50,6 @@ public class Controller {
       COMPUTER_CANNOT_PLAY = 0;
       HUMAN_CANNOT_PLAY = 0;
 
-      model.getLowCardGame().deal(); // deal to players
       initView();
    }
 
