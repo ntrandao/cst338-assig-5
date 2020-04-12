@@ -9,6 +9,7 @@ public class Model {
 
    static int numPlayers;
    static int numCardsPerHand;
+   static int numStacks;
 
    static CardGameFramework LowCardGame; // CardGameFramework instance
 
@@ -20,29 +21,21 @@ public class Model {
    /**
     * Keep track of winnings in 2D array
     */
-   static Card[][] cardWinningsPerPlayer;
-   static int[] numWinningsPerPlayer; // so we know index to add cards for each win
 
    Model(int numPacks, int numJokersPerPack,
          int numUnusedCardsPerPack, Card[] unusedCardsPerPack,
-         int numPlayers, int numCardsPerHand) {
-
-      // game will start with computer playing first
-      setComputerWin(true);
-      setHumanWin(false);
+         int numPlayers, int numCardsPerHand, int numStacks) {
 
       setNumPlayers(numPlayers);
       setNumCardsPerHand(numCardsPerHand);
+      setNumStacks(numStacks);
 
       LowCardGame = new CardGameFramework(
             numPacks, numJokersPerPack,
             numUnusedCardsPerPack, unusedCardsPerPack,
-            numPlayers, numCardsPerHand);
+            numPlayers, numCardsPerHand, numStacks);
 
-      cardsInPlay = new Card[this.numPlayers];
-
-      cardWinningsPerPlayer = new Card[this.numPlayers][Deck.MAX_CARDS];
-      numWinningsPerPlayer = new int[this.numPlayers]; // so we know index to add cards for each win
+      cardsInPlay = new Card[this.numStacks];
    }
 
    public CardGameFramework getLowCardGame() {
@@ -59,6 +52,10 @@ public class Model {
 
    public void setNumPlayers(int numPlayers) {
       Model.numPlayers = numPlayers;
+   }
+
+   public void setNumStacks(int numStacks) {
+      Model.numStacks = numStacks;
    }
 
    public int getNumCardsPerHand() {
@@ -91,21 +88,5 @@ public class Model {
 
    public void setCardsInPlay(Card[] cardsInPlay) {
       Model.cardsInPlay = cardsInPlay;
-   }
-
-   public Card[][] getCardWinningsPerPlayer() {
-      return cardWinningsPerPlayer;
-   }
-
-   public void setCardWinningsPerPlayer(int playerIndex, int cardIndex, Card card) {
-      cardWinningsPerPlayer[playerIndex][cardIndex] = new Card(card);
-   }
-
-   public int getNumWinningsPerPlayer(int playerIndex) {
-      return numWinningsPerPlayer[playerIndex];
-   }
-
-   public void setNumWinningsPerPlayer(int playerIndex, int numWinnings) {
-      Model.numWinningsPerPlayer[playerIndex] = numWinnings;
    }
 }

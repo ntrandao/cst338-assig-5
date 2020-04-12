@@ -15,12 +15,24 @@ public class Controller {
    static int  COMPUTER_CANNOT_PLAY;
    static int HUMAN_CANNOT_PLAY;
 
+   static Card hSelectedCard;
+   static Card cSelectedCard;
+
+   static int hSlotNum;
+   static int cSlotNum;
+
    private Model model;
    private View view;
 
    Controller(Model m, View v) {
       model = m;
       view = v;
+
+      hSelectedCard = null;
+      cSelectedCard = null;
+
+      hSlotNum = 3; // invalid slot on stack(0-2) to start
+      cSlotNum = 3;
 
       COMPUTER_CANNOT_PLAY = 0;
       HUMAN_CANNOT_PLAY = 0;
@@ -74,20 +86,17 @@ public class Controller {
     * Show a dialog with Game Results.
     */
    private void handleEndGame() {
-      int numHumanWinnings = model.getNumWinningsPerPlayer(HUMAN_HAND_INDEX);
-      int numComputerWinnings = model.getNumWinningsPerPlayer(COMPUTER_HAND_INDEX);
-
       String resultText = "";
-      if  (numHumanWinnings == numComputerWinnings) {
+      if  (COMPUTER_CANNOT_PLAY == HUMAN_CANNOT_PLAY) {
          resultText = "You tied!";
-      } else if (numHumanWinnings > numComputerWinnings) {
+      } else if (COMPUTER_CANNOT_PLAY > HUMAN_CANNOT_PLAY) {
          resultText = "You win!";
       } else {
          resultText = "Computer wins!";
       }
       String displayText =
-            "Game is Over. Final Scores: \n" + "Computer: " + numComputerWinnings + " Cards\n"
-                  + "You: " + numHumanWinnings + " Cards\n" + resultText;
+            "Game is Over. Final Scores: \n" + "Computer: " + COMPUTER_CANNOT_PLAY + " forfeits\n"
+                  + "You: " + HUMAN_CANNOT_PLAY + " forfeits\n" + resultText;
       JOptionPane.showMessageDialog(view.getCardTable(), displayText, "Round Results", JOptionPane.PLAIN_MESSAGE);
    }
 
@@ -146,10 +155,7 @@ public class Controller {
          }
       }
       // save winnings
-      int numCardsWon = model.getNumWinningsPerPlayer(winnerIndex);
-      model.setCardWinningsPerPlayer(winnerIndex, numCardsWon, model.getCardsInPlay()[0]); // actually place cards in winnings
-      model.setCardWinningsPerPlayer(winnerIndex, numCardsWon + 1, model.getCardsInPlay()[1]);
-      model.setNumWinningsPerPlayer(winnerIndex, numCardsWon + 2);
+      // revisit
 
       if (winnerIndex == HUMAN_HAND_INDEX) {
          model.setHumanWin(true);
@@ -251,23 +257,25 @@ public class Controller {
          resetForNewRound();
       }
    }
+
+   /**
+    * Inner select stack button listener class
+    * Allows the user to specify which stack they are trying to play their selected card on
+    */
+   private class SelectStackButtonListener implements ActionListener {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
+      }
+
+   }
    /**
     * Inner "cannot play" button listener class
     */
    private class CannotPlayButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         int slotNumber = Integer.valueOf(e.getActionCommand()); // get slot number played
-         JButton button = (JButton) e.getSource();
-         model.getCardsInPlay()[1] = humanPlayCard(slotNumber);
-         button.setIcon(null);
-         button.setEnabled(false);
-         //human is playing first this round
-         if (model.isHumanWin()) {
-            model.getCardsInPlay()[0] = computerPlayCard();
-         }
-         handleRoundResults();
-         resetForNewRound();
+
       }
    }
 }

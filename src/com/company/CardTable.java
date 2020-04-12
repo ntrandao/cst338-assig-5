@@ -45,8 +45,8 @@ public class CardTable extends JFrame {
     */
    private void setUpPanels() {
       pnlComputerHand = new JPanel(new GridLayout(1, numCardsPerHand));
-      pnlHumanHand = new JPanel(new GridLayout(1, numCardsPerHand));
-      pnlPlayArea = new JPanel(new GridLayout(2, numPlayers));
+      pnlHumanHand = new JPanel(new GridLayout(2, numCardsPerHand));
+      pnlPlayArea = new JPanel(new GridLayout(1, numPlayers));
 
       pnlComputerHand.setBorder(new TitledBorder("Computer Hand"));
       pnlHumanHand.setBorder(new TitledBorder("Human Hand"));
