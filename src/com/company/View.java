@@ -18,11 +18,15 @@ public class View {
     */
    static CardTable cardTable;  // CardTable instance
 
-   View(String title, int numCardsPerHand, int numPlayers ) {
+   View(String title, int numCardsPerHand, int numPlayers, int numStacks) {
       cardTable = new CardTable(title, numCardsPerHand, numPlayers);
       cardTable.setSize(900, 700);
       cardTable.setLocationRelativeTo(null);
       cardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+      setComputerLabels(new JLabel[numCardsPerHand]);
+      setHumanLabels(new JButton[numCardsPerHand]);
+      setPlayedCardLabels(new JButton[numStacks]);
    }
 
    /**
