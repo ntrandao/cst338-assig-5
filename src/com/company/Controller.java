@@ -40,7 +40,7 @@ public class Controller {
       model = m;
       view = v;
 
-      selectedHandIndex = model.getNumStacks(); // invalid slot on stack(0-2) to start
+      selectedHandIndex = -1; // null state
 
       cannotPlay = false;
 
