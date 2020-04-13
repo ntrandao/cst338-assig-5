@@ -269,8 +269,6 @@ public class Controller {
    private boolean validCardPlayed(int slotNumber) {
       if (selectedCard == null) return false;
 
-      if (selectedCard != null) return true;
-
       if (selectedHandIndex > -1) {
          Card cardInSlot = model.getCardInPlay(slotNumber);
          int selectedValue = GUICard.valueAsInt(selectedCard);
