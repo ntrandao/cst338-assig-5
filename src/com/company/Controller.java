@@ -39,7 +39,8 @@ public class Controller {
    Controller(Model m, View v) {
       model = m;
       view = v;
-
+     
+      selectedCard = null;
       selectedHandIndex = -1; // null state
 
       cannotPlay = false;
@@ -280,15 +281,30 @@ public class Controller {
    }
 
    /**
+    * Checks the value of card stored in selectedCard and compares it to the card at specified slot.
+    *
+    * @param slotNumber The index of the specified card slot.
+    * @return The if the play is valid.
+    */
+   private boolean validCardPlayed(int slotNumber) {
+      boolean result = false;
+      if (null != selectedCard && selectedHandIndex < model.getNumStacks()) {
+         Card cardInSlot =  model.getCardInPlay(slotNumber);
+         if (GUICard.valueAsInt(selectedCard) == GUICard.valueAsInt(cardInSlot)+1 || GUICard.valueAsInt(selectedCard) == GUICard.valueAsInt(cardInSlot)-1) {
+            result = true;
+         }
+      }
+      return result;
+   }
+
+   /**
     * Inner button listener class
     */
    private class CardButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         selectedHandIndex = Integer.valueOf(e.getActionCommand()); // store the hand index of the card desired to be
-         // played
-         selectedCard = model.getLowCardGame().getHand(HUMAN_HAND_INDEX).inspectCard(selectedHandIndex); // store the
-         // card desired to be played
+         selectedHandIndex = Integer.valueOf(e.getActionCommand()); // store the hand index of the card desired to be played
+         selectedCard = model.getLowCardGame().getHand(HUMAN_HAND_INDEX).inspectCard(selectedHandIndex); // store the card desired to be played
       }
    }
 
@@ -310,7 +326,6 @@ public class Controller {
             button.setEnabled(false);
             selectedCard = null;
             selectedHandIndex = -1;
-            resetForNewRound();
          }
       }
    }
