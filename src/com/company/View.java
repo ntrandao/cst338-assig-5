@@ -18,6 +18,17 @@ public class View {
     */
    static CardTable cardTable;  // CardTable instance
 
+   View(String title, int numCardsPerHand, int numPlayers, int numStacks) {
+      cardTable = new CardTable(title, numCardsPerHand, numPlayers);
+      cardTable.setSize(900, 700);
+      cardTable.setLocationRelativeTo(null);
+      cardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+      setComputerLabels(new JLabel[numCardsPerHand]);
+      setHumanLabels(new JButton[numCardsPerHand]);
+      setPlayedCardLabels(new JButton[numStacks]);
+   }
+
    /**
     * Utility for displaying message dialogs
     *
@@ -26,10 +37,6 @@ public class View {
     */
    public static void displayMessage(String message, String title) {
       JOptionPane.showMessageDialog(cardTable, message, title, JOptionPane.PLAIN_MESSAGE);
-   }
-
-   public JLabel[] getComputerLabels() {
-      return computerLabels;
    }
 
    public JLabel getComputerLabelAtIndex(int index) {
@@ -52,10 +59,6 @@ public class View {
       this.computerLabels = computerLabels;
    }
 
-   public JButton[] getHumanLabels() {
-      return humanLabels;
-   }
-
    public void setHumanLabels(JButton[] humanLabels) {
       this.humanLabels = humanLabels;
    }
@@ -64,15 +67,17 @@ public class View {
       return playedCardLabels;
    }
 
+   public JButton getPlayedCardLabelsAtIndex(int index) { return playedCardLabels[index]; }
+
    public void setPlayedCardLabels(JButton[] playedCardLabels) {
       this.playedCardLabels = playedCardLabels;
    }
 
-   public CardTable getCardTable() {
-      return cardTable;
+   public void setPlayedCardLabelsAtIndex(int index, JButton button) {
+      this.playedCardLabels[index] = button;
    }
 
-   public void setCardTable(CardTable cardTable) {
-      this.cardTable = cardTable;
+   public CardTable getCardTable() {
+      return cardTable;
    }
 }
