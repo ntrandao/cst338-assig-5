@@ -157,28 +157,23 @@ public class Controller {
     * Reset for next round
     */
    private void resetForNewRound() {
-//      Component[] playAreaLabels = view.getCardTable().getPnlPlayArea().getComponents();
-//      for (int i = 0; i < playAreaLabels.length; i++) {
-//         ((JButton) playAreaLabels[i]).setIcon(null); // set the play area icons to null
-//      }
-//      // Deal out new cards
-//      for (int i = 0; i < model.getNumPlayers(); i++) {
-//         model.getLowCardGame().takeCard(i); // replenish hand
-//      }
-//      view.getCardTable().getPnlHumanHand().removeAll();
-//      view.getCardTable().getPnlComputerHand().removeAll();
-//
-//      renderHands();
-//      view.getCardTable().revalidate();
-//      view.getCardTable().repaint();
-//      // End Game if either player is out of cards
-//      if (model.getLowCardGame().getHand(COMPUTER_HAND_INDEX).getNumCards() == 0 && model.getLowCardGame().getHand(HUMAN_HAND_INDEX).getNumCards() == 0) {
-//         handleEndGame();
-//      }
-//      // Otherwise check if computer starts new round
-//      else if (model.isComputerWin()) {
-//         model.setCardInPlay(0, computerPlayCard());
-//      }
+      if (model.getLowCardGame().getNumCardsRemainingInDeck() == 0) { // end game on empty deck
+         handleEndGame();
+         return;
+      }
+
+      // Deal out new cards
+      for (int i = 0; i < model.getNumPlayers(); i++) {
+         model.getLowCardGame().takeCard(i); // replenish hand
+      }
+
+      view.getCardTable().getPnlHumanHand().removeAll();
+      view.getCardTable().getPnlComputerHand().removeAll();
+
+      renderHands();
+
+      view.getCardTable().revalidate();
+      view.getCardTable().repaint();
    }
 
    /**
@@ -222,28 +217,29 @@ public class Controller {
     * @return The card the Computer will play.
     */
    private Card computerPlayCard() {
-      return new Card(); // TODO: impl
-//      Hand hand = model.getLowCardGame().getHand(COMPUTER_HAND_INDEX);
-//      Card cardToPlay = null;
-//      hand.sort();  //want to sort out the hand to get 1 card lower than humanCardToPlay
-//      if (view.getPlayedCardLabels()[HUMAN_HAND_INDEX] == null) {  //if no display on humanCard, then play at index 0.
-//         cardToPlay = model.getLowCardGame().playCard(COMPUTER_HAND_INDEX, 0); //which if is sorted then would be
-//         // lowest card
-//      } else {
-//         for (int i = hand.getNumCards() - 1; i > 0; i--) { // find highest card that is sufficient to win round
-//            if (model.getCardInPlay(HUMAN_HAND_INDEX).getValue() < hand.inspectCard(i).getValue()) {
-//               cardToPlay = model.getLowCardGame().playCard(COMPUTER_HAND_INDEX, i);
-//               break;
-//            }
-//         }
-//      }
-//      if (cardToPlay == null) { // if still null then computer can't win round, discard highest
-//         cardToPlay = hand.playCard(hand.getNumCards() - 1);
-//      }
-//      // update ui
-//      JLabel playArea = (JLabel) view.getCardTable().getPnlPlayArea().getComponent(COMPUTER_HAND_INDEX);
-//      playArea.setIcon(GUICard.getIcon(cardToPlay));
-//      return cardToPlay;
+      Hand computerHand = model.getLowCardGame().getHand(COMPUTER_HAND_INDEX);
+
+      for (int i = 0; i < model.getNumStacks(); i++) {
+         for (int j = 0; j < computerHand.getNumCards(); j++ ) {
+            Card card = computerHand.inspectCard(j);
+            if (validCardPlayed(i, card)) {
+               playCardToStack(i, card);
+               return computerHand.playCard(j);
+            }
+         }
+      }
+
+      return null;
+   }
+
+   /**
+    * Update stack with played card.
+    * @param stackIndex
+    * @param card
+    */
+   private void playCardToStack(int stackIndex, Card card) {
+      JButton stackButton = (JButton) view.getCardTable().getPnlPlayArea().getComponent(stackIndex);
+      stackButton.setIcon(GUICard.getIcon(card));
    }
 
    /**
@@ -253,26 +249,21 @@ public class Controller {
     * @return The Card to be played.
     */
    private Card humanPlayCard(int handIndex) {
-      Card cardToPlay = model.getLowCardGame().playCard(HUMAN_HAND_INDEX, handIndex);
-      // update ui
-      JButton stackButton = (JButton) view.getCardTable().getPnlPlayArea().getComponent(HUMAN_HAND_INDEX);
-      stackButton.setIcon(GUICard.getIcon(cardToPlay));
-      return cardToPlay;
+      return model.getLowCardGame().playCard(HUMAN_HAND_INDEX, handIndex);
    }
 
    /**
     * Checks the value of card stored in selectedCard and compares it to the card at specified slot.
     *
-    * @param slotNumber The index of the specified card slot.
+    * @param stackIndex The index of the specified card slot.
     * @return The if the play is valid.
     */
-   private boolean validCardPlayed(int slotNumber) {
+   private boolean validCardPlayed(int stackIndex, Card card) {
       if (selectedCard == null) return false;
 
       if (selectedHandIndex > -1) {
-         Card cardInSlot = model.getCardInPlay(slotNumber);
-         int selectedValue = GUICard.valueAsInt(selectedCard);
-         int topStackValue = GUICard.valueAsInt(cardInSlot);
+         int selectedValue = GUICard.valueAsInt(card);
+         int topStackValue = GUICard.valueAsInt(model.getCardInPlay(stackIndex));
          if (selectedValue == topStackValue + 1 || selectedValue == topStackValue - 1) {
             return true;
          }
@@ -309,9 +300,12 @@ public class Controller {
       @Override
       public void actionPerformed(ActionEvent e) {
          int stackIndex = Integer.valueOf(e.getActionCommand()); // get slot number played
-         if (validCardPlayed(stackIndex)) {
+         if (validCardPlayed(stackIndex, selectedCard)) {
             JButton button = (JButton) view.getCardTable().getPnlHumanHand().getComponent(selectedHandIndex);
-            model.setCardInPlay(stackIndex, humanPlayCard(selectedHandIndex));
+            Card card = humanPlayCard(selectedHandIndex);
+            model.setCardInPlay(stackIndex, card);
+            playCardToStack(stackIndex, card);
+
             button.setIcon(null);
             button.setEnabled(false);
             selectedCard = null;
@@ -335,7 +329,10 @@ public class Controller {
          } else {
             cannotPlay = true;
          }
-         computerPlayCard();
+         Card card = computerPlayCard();
+         if (card == null) {
+            // computer cannot play
+         }
       }
    }
 }
